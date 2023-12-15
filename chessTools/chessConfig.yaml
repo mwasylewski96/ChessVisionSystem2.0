@@ -1,0 +1,4 @@
+'chess_config':
+  'paths':
+    'for_windows': 'path_win'
+    'for_rasberry': 'path_rasb'

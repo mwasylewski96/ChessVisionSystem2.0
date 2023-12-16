@@ -4,3 +4,4 @@
     'numbers': "12345678"
   'paths':
     'chessCurrentGameTable': "/chessOds/chessCurrentGameTable.ods"
+    'chessInitGameTable': "/chessOds/chessInitGameTable.ods"

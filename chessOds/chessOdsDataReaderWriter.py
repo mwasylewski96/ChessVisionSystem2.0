@@ -3,15 +3,18 @@
 ############################
 from enum import Enum
 import ezodf
+from typing import Literal, Optional
 
 ############################
 ###  INTERNAL LIBRARIES  ###
 ############################
-from chessTools.chessConfig import get_chess_current_game_table_config, get_chess_config
+from chessTools.chessConfig import get_chess_current_game_table_config, \
+    get_chess_init_game_table_config, get_chess_config
 
 
 class ChessPath(str, Enum):
-    PATH_TO_GAME: str = get_chess_current_game_table_config()
+    PATH_TO_CURRENT_GAME: str = get_chess_current_game_table_config()
+    PATH_TO_INIT_GAME: str = get_chess_init_game_table_config()
 
 
 class ChessBoard(str, Enum):
@@ -35,18 +38,38 @@ class ChessOdsDataReaderWriter:
                     }
                 )
 
+    def reset_chess_table_to_starting_position(self):
+        init_positions = self.read_all_chess_table_figures_positions(
+            game="init"
+        )
+        self.read_all_data(
+            path=ChessPath.PATH_TO_CURRENT_GAME
+        )
+        for addr_place, figure in init_positions.items():
+            self.__write_chosen_figure_to_given_place(
+                addr_place=addr_place,
+                figure=figure
+            )
+
+        self.read_all_chess_table_figures_positions()
+
     def read_all_data(
-            self
+            self,
+            path
     ):
-        self.doc = ezodf.opendoc(ChessPath.PATH_TO_GAME)
+        self.doc = ezodf.opendoc(path)
         sheet_name = self.doc.sheets[0].name
         self.sheet_data = self.doc.sheets[sheet_name]
         return self.sheet_data
 
     def read_all_chess_table_figures_positions(
-            self
+            self,
+            game: Optional[Literal["current", "init"]] = "current"
     ):
-        self.sheet_data = self.read_all_data()
+        if game == "current":
+            self.sheet_data = self.read_all_data(ChessPath.PATH_TO_CURRENT_GAME)
+        if game == "init":
+            self.sheet_data = self.read_all_data(ChessPath.PATH_TO_INIT_GAME)
         self.figure_positions = {
             addr_place: self.sheet_data[addr_place].value for addr_place, figure in self.figure_positions.items()
         }
@@ -73,6 +96,7 @@ class ChessOdsDataReaderWriter:
         self.__clean_given_place(
             addr_place=addr_place_start
         )
+        self.read_all_chess_table_figures_positions()
 
     def __clean_given_place(self, addr_place):
         self.__write_chosen_figure_to_given_place(
@@ -95,19 +119,11 @@ class ChessOdsDataReaderWriter:
 
 if __name__ == "__main__":
     obj = ChessOdsDataReaderWriter()
-    obj.read_all_chess_table_figures_positions()
+    obj.reset_chess_table_to_starting_position()
+    # obj.read_all_chess_table_figures_positions()
+    # obj.move_chosen_figure_to_another_place("E2", "E4")
+    # obj.move_chosen_figure_to_another_place("C7", "C5")
+    # obj.move_chosen_figure_to_another_place("G1", "F3")
+    # obj.move_chosen_figure_to_another_place("D7", "D6")
+    # obj.move_chosen_figure_to_another_place("D2", "D4")
 
-    obj.move_chosen_figure_to_another_place("E2", "E4")
-    obj.read_all_chess_table_figures_positions()
-
-    obj.move_chosen_figure_to_another_place("C7", "C5")
-    obj.read_all_chess_table_figures_positions()
-
-    obj.move_chosen_figure_to_another_place("G1", "F3")
-    obj.read_all_chess_table_figures_positions()
-
-    obj.move_chosen_figure_to_another_place("D7", "D6")
-    obj.read_all_chess_table_figures_positions()
-
-    obj.move_chosen_figure_to_another_place("D2", "D4")
-    obj.read_all_chess_table_figures_positions()

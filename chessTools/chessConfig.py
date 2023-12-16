@@ -28,3 +28,10 @@ def get_chess_current_game_table_config():
     path_to_config_chess_current_game_table_config = main_chess_vision_system_20_path\
                                               + get_chess_config()['paths']['chessCurrentGameTable']
     return path_to_config_chess_current_game_table_config
+
+
+def get_chess_init_game_table_config():
+    path_to_config_chess_init_game_table_config = main_chess_vision_system_20_path\
+                                              + get_chess_config()['paths']['chessInitGameTable']
+    return path_to_config_chess_init_game_table_config
+

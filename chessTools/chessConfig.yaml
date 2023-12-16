@@ -1,4 +1,6 @@
 'chess_config':
+  'board':
+    'letters': "ABCDEFGH"
+    'numbers': "12345678"
   'paths':
-    'for_windows': 'path_win'
-    'for_rasberry': 'path_rasb'
+    'chessCurrentGameTable': "/chessOds/chessCurrentGameTable.ods"

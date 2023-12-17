@@ -1,5 +1,5 @@
 import cv2
-from chessTools.chessTool import get_right_camera_index
+from chessTools.chessTool import get_right_camera_index, Result
 
 
 class ChessCameraRecorder:
@@ -15,11 +15,11 @@ class ChessCameraRecorder:
                 raise cv2.error(f"Camera not found! index = {index}")
             if index == 2:
                 temp = 0
-                self.camera = cv2.VideoCapture(temp)
+                self.__camera = cv2.VideoCapture(temp)
             else:
-                self.camera = cv2.VideoCapture(index)
+                self.__camera = cv2.VideoCapture(index)
 
-            if not self.camera.isOpened():
+            if not self.__camera.isOpened():
                 if index == 2:
                     error_message = "Camera not found! Probably on Linux system"
                     raise cv2.error(error_message)
@@ -33,14 +33,18 @@ class ChessCameraRecorder:
     def get_image(
             self
     ):
-        if self.camera.isOpened():
-            ret, img = self.camera.read()
+        if self.__camera.isOpened():
+            ret, img = self.__camera.read()
             if ret:
-                return img
+                return Result.success(img)
             else:
-                return None
+                return Result.error(
+                    error="Image error"
+                )
         else:
-            return None
+            return Result.error(
+                error="Image error"
+            )
 
     @staticmethod
     def show_got_img(
@@ -51,7 +55,17 @@ class ChessCameraRecorder:
     def show_current_img(
             self,
     ):
-        cv2.imshow("Got image", self.get_image())
+        try:
+            result_image = self.get_image()
+            if result_image.success:
+                cv2.imshow("Got image", result_image.value)
+                return Result.success()
+            else:
+                return Result.error(result_image.error)
+        except Exception as err:
+            message = f"Not camera detected {err}"
+            print(message)
+            return Result.error(message)
 
 
 if __name__ == "__main__":
@@ -59,6 +73,6 @@ if __name__ == "__main__":
     if camera.error is not None:
         print(camera.error)
     else:
-        for _ in range(10000):
+        for _ in range(1000):
             camera.show_current_img()
             cv2.waitKey(1)

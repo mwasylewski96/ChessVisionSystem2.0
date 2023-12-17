@@ -11,7 +11,7 @@ from chessTools.chessTool import stack_images
 
 
 class ChessColorDetection:
-
+    pass
 
 
 

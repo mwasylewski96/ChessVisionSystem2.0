@@ -1,5 +1,24 @@
 'chess_config':
+  'cameras':
+    'windows':
+      'internal_camera': "USB\VID_04CA&PID_709D\5&831DF12&0&4"
+      'external_camera': "USB\VID_045E&PID_0812\5&831DF12&0&2"
   'board':
+    'calibration':
+      'green':
+        'hue_min': !!int 37
+        'hue_max': !!int 37
+        'sat_min': !!int 69
+        'sat_max': !!int 255
+        'val_min': !!int 43
+        'val_max': !!int 255
+      'blue':
+        'hue_min': !!int 99
+        'hue_max': !!int 172
+        'sat_min': !!int 0
+        'sat_max': !!int 255
+        'val_min': !!int 0
+        'val_max': !!int 255
     'letters': "ABCDEFGH"
     'numbers': "12345678"
   'paths':

@@ -35,3 +35,10 @@ def get_chess_init_game_table_config():
                                               + get_chess_config()['paths']['chessInitGameTable']
     return path_to_config_chess_init_game_table_config
 
+
+def get_chess_cameras_config():
+    return get_chess_config()['cameras']['windows']
+
+
+def get_chess_calibration_config():
+    return get_chess_config()['board']['calibration']

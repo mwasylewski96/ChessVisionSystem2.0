@@ -75,4 +75,5 @@ if __name__ == "__main__":
     else:
         for _ in range(1000):
             camera.show_current_img()
-            cv2.waitKey(1)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break

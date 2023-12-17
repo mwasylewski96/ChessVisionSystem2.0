@@ -10,6 +10,7 @@ setup(
         'lxml',
         'aiohttp',
         'python-socketio',
-        'PyYAML'
+        'PyYAML',
+        'opencv-python'
     ],
 )

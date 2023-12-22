@@ -14,6 +14,7 @@ setup(
         'aiohttp',
         'python-socketio',
         'PyYAML',
-        'opencv-python'
+        'opencv-python',
+        'pywin32'
     ],
 )

@@ -1,5 +1,5 @@
 import cv2
-from chessTools.chessTool import get_right_camera_index, Result
+from chessTools.chessTool import get_right_camera_index, Result, is_button_pressed
 
 
 class ChessCameraRecorder:
@@ -73,7 +73,5 @@ if __name__ == "__main__":
     if camera.error is not None:
         print(camera.error)
     else:
-        for _ in range(1000):
+        while not is_button_pressed():
             camera.show_current_img()
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break

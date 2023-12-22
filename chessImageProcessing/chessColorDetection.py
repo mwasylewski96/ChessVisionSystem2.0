@@ -7,7 +7,7 @@ from typing import Literal
 ############################
 ###  INTERNAL LIBRARIES  ###
 ############################
-from chessTools.chessTool import stack_images
+from chessTools.chessTool import stack_images, is_button_pressed
 from chessTools.chessConfig import get_chess_calibration_config
 from chessCameraProcessing.chessCameraRecording import ChessCameraRecorder
 
@@ -84,19 +84,17 @@ if __name__ == "__main__":
         print(camera.error)
     else:
         color_frame_detector = ChessColorDetector()
-        while True:
+        while not is_button_pressed():
             result_current_image = camera.get_image()
             if result_current_image.success:
-                # all_images = color_frame_detector.get_images_on_one_frame(
-                #     result_current_image.value
-                # )
-                white_image = color_frame_detector.get_img_with_chosen_mask(
-                    figure_mask="white",
-                    current_recorded_image=result_current_image.value
+                all_images = color_frame_detector.get_images_on_one_frame(
+                    result_current_image.value
                 )
-                cv2.imshow("Stacked Images", white_image)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # white_image = color_frame_detector.get_img_with_chosen_mask(
+                #     figure_mask="white",
+                #     current_recorded_image=result_current_image.value
+                # )
+                cv2.imshow("Stacked Images", all_images)
 
 
 # def empty(a):

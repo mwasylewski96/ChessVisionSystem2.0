@@ -42,3 +42,15 @@ def get_chess_cameras_config():
 
 def get_chess_calibration_config():
     return get_chess_config()['board']['calibration']
+
+
+def get_chess_path_to_corners():
+    return main_chess_vision_system_20_path + '/chessTools/corners.json'
+
+
+def get_chess_board_letters():
+    return get_chess_config()["board"]["letters"]
+
+
+def get_chess_board_numbers():
+    return get_chess_config()["board"]["numbers"]

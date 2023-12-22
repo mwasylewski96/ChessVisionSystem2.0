@@ -1,6 +1,8 @@
 ############################
 ###  EXTERNAL LIBRARIES  ###
 ############################
+import json
+
 import cv2
 import numpy as np
 import os
@@ -58,6 +60,30 @@ def write_yaml(
         except yaml.YAMLError as e:
             raise Exception(f'Could not write yamlfile:{path}, e:{repr(e)}')
     return
+
+
+def is_button_pressed():
+    return cv2.waitKey(1) & 0xFF == ord('q')
+
+
+def write_corners_to_json_file(corners, path):
+    letters = "abcdefghi"
+    numbers = "123456789"
+    figure_positions = {}
+    c_i = 0
+    for letter in letters:
+        for number in numbers:
+            figure_positions.update({
+                letter + number: {
+                    "x": corners[c_i][0],
+                    "y": corners[c_i][1],
+                }
+            }
+            )
+            c_i += 1
+
+    with open(path, 'w') as json_file:
+        json.dump(figure_positions, json_file)
 
 
 def stack_images(

@@ -19,8 +19,8 @@
         'sat_max': !!int 255
         'val_min': !!int 0
         'val_max': !!int 255
-    'letters': "ABCDEFGH"
-    'numbers': "12345678"
+    'letters': "abcdefghi"
+    'numbers': "123456789"
   'paths':
     'chessCurrentGameTable': "/chessOds/chessCurrentGameTable.ods"
     'chessInitGameTable': "/chessOds/chessInitGameTable.ods"

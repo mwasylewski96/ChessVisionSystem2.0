@@ -1,0 +1,4 @@
+
+
+class ChessGameWriter:
+    pass

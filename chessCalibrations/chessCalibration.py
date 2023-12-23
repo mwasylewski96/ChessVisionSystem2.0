@@ -27,11 +27,27 @@ if __name__ == "__main__":
         while not is_button_pressed():
             result_current_image = camera.get_image()
             if result_current_image.success:
-                square = "c2"
+                square = "e5"
                 chessCalibrator.draw_calibrate_rect(
                     img=result_current_image.value,
                     square=square,
                     left_up_corner_xy=corners[square[0]+str(int(square[1])+1)],
-                    right_down_corner_xy=corners["d"+square[1]],
+                    right_down_corner_xy=corners["f"+square[1]],
                 )
+                square = "b3"
+                chessCalibrator.draw_calibrate_rect(
+                    img=result_current_image.value,
+                    square=square,
+                    left_up_corner_xy=corners[square[0]+str(int(square[1])+1)],
+                    right_down_corner_xy=corners["c"+square[1]],
+                )
+
+                square = "c8"
+                chessCalibrator.draw_calibrate_rect(
+                    img=result_current_image.value,
+                    square=square,
+                    left_up_corner_xy=corners[square[0] + str(int(square[1]) + 1)],
+                    right_down_corner_xy=corners["d" + square[1]],
+                )
+
                 cv2.imshow("Calibration img", result_current_image.value)

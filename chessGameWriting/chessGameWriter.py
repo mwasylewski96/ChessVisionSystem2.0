@@ -9,8 +9,8 @@ class ChessGameWriter:
             game_name
     ):
         self.__main_path = get_chess_directory_path_game()
-        self.__current_game_path = f"{self.__main_path}/{game_name}.txt"
         date = datetime.datetime.now()
+        self.__current_game_path = f"{self.__main_path}/{game_name}{date.strftime('%H-%M-%S')}.txt"
         self.__date = date.strftime('%Y.%m.%d')
         self.__setup_init_config_game_pattern()
         self.__create_init_game()
@@ -36,19 +36,7 @@ class ChessGameWriter:
                 file.write(line+"\n")
             file.seek(0)
 
-    def __write_data_to_game(
-            self,
-            data: str,
-    ):
-        try:
-            with open(self.__current_game_path, 'a') as file:
-                file.write(data)
-        except FileNotFoundError:
-            print("File does not exist!")
-        except Exception as err:
-            print(f"Other error: {err}")
-
-    def game_parameter_decorator(
+    def __game_parameter_decorator(
             this_game_param_value,
             line_number: int
     ):
@@ -67,7 +55,7 @@ class ChessGameWriter:
             return wrapper
         return decorator
 
-    @game_parameter_decorator(
+    @__game_parameter_decorator(
         this_game_param_value="[Event \"{0}\"]",
         line_number=0
     )
@@ -77,7 +65,7 @@ class ChessGameWriter:
     ):
         self.__game_event = f"[Event \"{event}\"]"
 
-    @game_parameter_decorator(
+    @__game_parameter_decorator(
         this_game_param_value="[White \"{0}\"]",
         line_number=2
     )
@@ -87,7 +75,7 @@ class ChessGameWriter:
     ):
         self.__game_white = f"[White \"{white}\"]"
 
-    @game_parameter_decorator(
+    @__game_parameter_decorator(
         this_game_param_value="[Black \"{0}\"]",
         line_number=3
     )
@@ -97,7 +85,7 @@ class ChessGameWriter:
     ):
         self.__game_black = f"[Black \"{black}\"]"
 
-    @game_parameter_decorator(
+    @__game_parameter_decorator(
         this_game_param_value="[Result \"{0}\"]",
         line_number=4
     )
@@ -117,54 +105,22 @@ class ChessGameWriter:
         with open(self.__current_game_path, 'a') as file:
             file.write(text)
         self.__game_move_number += 1
-    # def set_event_game(
-    #         self,
-    #         event
-    # ):
-    #     self.__game_event = f"[Event \"{event}\"]"
-    #     with open(self.__current_game_path, 'r+') as file:
-    #         lines = file.readlines()
-    #         lines[0] = self.__game_event + '\n'
-    #         file.seek(0)
-    #         file.writelines(lines)
-    #
-    # def set_white_game(
-    #         self,
-    #         white
-    # ):
-    #     self.__game_white = f"[White \"{white}\"]"
-    #     with open(self.__current_game_path, 'r+') as file:
-    #         lines = file.readlines()
-    #         lines[1] = self.__game_event + '\n'
-    #         file.seek(0)
-    #         file.writelines(lines)
 
 
 if __name__ == "__main__":
-    game_writer = ChessGameWriter(
-        game_name="Game_1"
-    )
-    game_writer.set_event_game(
-        value="Friend"
-    )
-    game_writer.set_white_game(
-        value="Marcin"
-    )
-    game_writer.set_black_game(
-        value="Jan"
-    )
-    game_writer.write_white_move(
-        move="Nf3"
-    )
-    game_writer.write_black_move(
-        move="Nc6"
-    )
-    game_writer.write_white_move(
-        move="e4"
-    )
-    game_writer.write_black_move(
-        move="e5"
-    )
-    game_writer.set_result_game(
-        value="1-0"
-    )
+    game_writer = ChessGameWriter(game_name="game_")
+    game_writer.set_event_game(value="Friend")
+    game_writer.set_white_game(value="Marcin")
+    game_writer.set_black_game(value="Jan")
+    game_writer.write_white_move(move="e4")
+    game_writer.write_black_move(move="c5")
+    game_writer.write_white_move(move="Nf3")
+    game_writer.write_black_move(move="d6")
+    game_writer.write_white_move(move="d4")
+    game_writer.write_black_move(move="cxd4")
+    game_writer.write_white_move(move="Nxd4")
+    game_writer.write_black_move(move="Nf6")
+    game_writer.write_white_move(move="Nc3")
+    game_writer.write_black_move(move="a6")
+    game_writer.write_white_move(move="Bg5")
+    game_writer.set_result_game(value="1-0")

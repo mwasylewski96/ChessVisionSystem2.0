@@ -10,7 +10,7 @@ class ChessGameWriter:
     ):
         self.__main_path = get_chess_directory_path_game()
         date = datetime.datetime.now()
-        self.__current_game_path = f"{self.__main_path}/{game_name}{date.strftime('%H-%M-%S')}.txt"
+        self.__current_game_path = f"{self.__main_path}/{game_name}_{date.strftime('%H-%M-%S')}.txt"
         self.__date = date.strftime('%Y.%m.%d')
         self.__setup_init_config_game_pattern()
         self.__create_init_game()

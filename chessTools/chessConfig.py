@@ -54,3 +54,7 @@ def get_chess_board_letters():
 
 def get_chess_board_numbers():
     return get_chess_config()["board"]["numbers"]
+
+
+def get_chess_directory_path_game():
+    return main_chess_vision_system_20_path+'/chessGames'

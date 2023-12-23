@@ -1,0 +1,7 @@
+[Event "Friend"]
+[Date "2023.12.23"]
+[White "Marcin"]
+[Black "Jan"]
+[Result "1-0"]
+1.Nf3 Nc6
+2.e4 e5

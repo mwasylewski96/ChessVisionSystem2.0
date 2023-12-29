@@ -10,6 +10,7 @@ from typing import Literal
 from chessTools.chessTool import stack_images, is_button_pressed
 from chessTools.chessConfig import get_chess_calibration_config
 from chessCameraProcessing.chessCameraRecording import ChessCameraRecorder
+from chessImageProcessing.chessCornerDetector import load_chess_corners
 
 
 class ChessColorDetector:
@@ -75,7 +76,15 @@ class ChessColorDetector:
         mask = cv2.inRange(current_image_hsv, lower, upper)
         # Median filter
         mask = cv2.medianBlur(mask, 21)
+        cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
         return mask
+
+    @staticmethod
+    def get_corrected_img_using_median_filter(
+            img
+    ):
+        ret_img = cv2.medianBlur(img, 21)
+        return ret_img
 
 
 if __name__ == "__main__":

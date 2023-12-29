@@ -1,0 +1,20 @@
+[Event "Najdorf_2024"]
+[Date "2023.12.29"]
+[White "Marcin Wasylewski"]
+[Black "Tadeusz Cichowski"]
+[Result "1-0"]
+1.e4 c5
+2.Nf3 d6
+3.d4 cxd4
+4.Nxd4 Nf6
+5.Nc3 a6
+6.Bg5 e5
+7.Bxf6 Qxf6
+8.Nd5 Qd8
+9.Nf5 Bxf5
+10.exf5 Nd7
+11.Bc4 Nb6
+12.Nxb6 Qxb6
+13.Qd5 Qc7
+14.h4 Qd8
+15.Qxf7

@@ -24,6 +24,11 @@ class ChessCameraRecorder:
                     error_message = "Camera not found! Probably on Linux system"
                     raise cv2.error(error_message)
 
+            if self.__camera is not None:
+                self.camera_width = self.__camera.get(3)
+                self.camera_height = self.__camera.get(4)
+                # print(self.camera_height, self.camera_width)
+
         except cv2.error as cv_err:
             self.error = f"Error with initialising camera ! {cv_err}"
 

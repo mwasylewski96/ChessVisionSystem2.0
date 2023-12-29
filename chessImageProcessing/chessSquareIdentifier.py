@@ -8,7 +8,7 @@ class ChessboardIdentifier:
 
     @staticmethod
     def check_square_on_chess_board(
-            center,
+            center: Dict[str, int],
             corners: Dict[str, Dict[str, int]]
     ):
         letters = get_chess_board_letters()

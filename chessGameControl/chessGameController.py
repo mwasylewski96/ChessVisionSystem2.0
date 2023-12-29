@@ -1,10 +1,23 @@
-from chessCalibrations.chessCalibration import ChessCalibrator
+import cv2
+import imutils
+import numpy as np
+import multiprocessing
+import threading
+import time
+from screeninfo import get_monitors
+# from chessCalibrations.chessCalibration import ChessCalibrator
 from chessCameraProcessing.chessCameraRecording import ChessCameraRecorder
 from chessGameWriting.chessGameWriter import ChessGameWriter
 from chessImageProcessing.chessColorDetection import ChessColorDetector
-from chessImageProcessing.chessCornerDetector import ChessCornerDetector
+from chessImageProcessing.chessCornerDetector import ChessCornerDetector, \
+    get_white_corners_on_black_screen, load_chess_corners, get_point_or_points_board
 from chessImageProcessing.chessSquareIdentifier import ChessboardIdentifier
 from chessOds.chessOdsDataReaderWriter import ChessOdsDataReaderWriter
+
+from chessTools.chessConfig import get_chess_config
+from chessTools.chessTool import is_button_pressed, stack_images
+
+from typing import Callable, Literal
 
 
 class ChessGameController:
@@ -12,10 +25,464 @@ class ChessGameController:
     def __init__(
             self
     ):
-        self.chess_camera = ChessCameraRecorder()
         self.chess_game_writer = ChessGameWriter(
             game_name="game"
         )
         self.chess_color_detector = ChessColorDetector()
-        self.chess_corner_detector = ChessCornerDetector()
         self.chess_ods_data_r_w = ChessOdsDataReaderWriter()
+
+        # self.chess_camera = ChessCameraRecorder() init in process __camera_get_frame_process
+        # self.chess_corner_detector = ChessCornerDetector() TODO answer the question: will be used in final app?
+
+        self.window_name = None
+        self.black_screen = None
+        self.screen_width = None
+        self.screen_height = None
+        self.temp_img = None
+        self.saved_image = None
+
+        self.current_before_move_img = None
+        self.current_after_move_img = None
+
+        manager = multiprocessing.Manager()
+        stacked_image_init_dict = {
+            "temp_image": None,
+            "white_and_black_detected_image": None,
+            "detected_move": None,
+            "white_corners_on_black_screen": None
+        }
+        self.stacked_image = manager.dict(stacked_image_init_dict)
+        self.stacked_image_lock = multiprocessing.Lock()
+
+        self.__camera_get_frame_process = None
+        self.__camera_display_stacked_images_process = None
+
+        self.__camera_get_frame_process_event = multiprocessing.Event()
+        self.__camera_display_stacked_images_process_event = multiprocessing.Event()
+
+        # self.chess_ods_data_r_w.reset_chess_table_to_starting_position()
+        self.corners_from_json = load_chess_corners()
+
+        self.__setup_camera_get_frame_process()
+        self.__start_camera_get_frame_process()
+
+        self.__setup_camera_display_stacked_images_process()
+        self.__start_camera_display_stacked_images_process()
+
+        print("Initialised")
+
+    def start_chess_game(self):
+        self.__set_current_before_move_img(
+            color="white"
+        )
+        self.chess_ods_data_r_w.reset_chess_table_to_starting_position()
+        self.chess_game_writer.reset_to_new_game(
+            game_name="game"
+        )
+
+    def execute_procedure_of_move(
+            self,
+            color: Literal['white', 'black']
+    ):
+        if color == "white":
+            self.__set_current_after_move_img(
+                color="white"
+            )
+        if color == "black":
+            self.__set_current_after_move_img(
+                color="black"
+            )
+
+        position_figure_after = self.__get_img_after_move()
+        position_figure_before = self.__get_img_before_move()
+
+        self.__set_detected_move(
+            img_before=position_figure_before,
+            img_after=position_figure_after
+        )
+
+        center_of_after_move = self.__find_center_of_change(
+            img=position_figure_after
+        )
+        center_of_before_move = self.__find_center_of_change(
+            img=position_figure_before
+        )
+
+        center_of_after_move = get_point_or_points_board(
+            center_elements=center_of_after_move
+        )
+
+        center_of_before_move = get_point_or_points_board(
+            center_elements=center_of_before_move
+        )
+
+        self.identified_square_after_move = ChessboardIdentifier.check_square_on_chess_board(
+            center=center_of_after_move[0],
+            corners=self.corners_from_json
+        )
+
+        self.identified_square_before_move = ChessboardIdentifier.check_square_on_chess_board(
+            center=center_of_before_move[0],
+            corners=self.corners_from_json
+        )
+
+        ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+            addr_place=self.identified_square_after_move
+        )
+
+        ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+            addr_place=self.identified_square_before_move
+        )
+        print(f"--> {ods_read_before_move}, {ods_read_after_move}")
+
+        try:
+            self.figure_read_after_move = ods_read_after_move[-1]
+        except TypeError:
+            self.figure_read_after_move = None
+
+        try:
+            self.figure_read_before_move = ods_read_before_move[-1]
+        except TypeError:
+            self.figure_read_before_move = None
+
+        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+            addr_place_start=self.identified_square_before_move,
+            addr_place_end=self.identified_square_after_move
+        )
+
+        self.__write_identified_move_to_txt(
+            color=color
+        )
+
+        if color == "white":
+            self.__set_current_before_move_img(
+                color="black"
+            )
+        if color == "black":
+            self.__set_current_before_move_img(
+                color="white"
+            )
+
+    def end_chess_game(
+            self,
+            result_of_game: Literal['1-0', '0-1', '1/2-1/2']
+    ):
+        self.chess_game_writer.set_result_game(
+            value=result_of_game
+        )
+
+    def __write_identified_move_to_txt(
+            self,
+            color: Literal['white', 'black']
+    ):
+        if color == "white":
+            if self.figure_read_before_move == "p":
+                if self.figure_read_after_move is not None:
+                    self.chess_game_writer.write_white_move(
+                        move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
+                    )
+                else:
+                    self.chess_game_writer.write_white_move(
+                        move=f"{self.identified_square_after_move}"
+                    )
+            else:
+                if self.figure_read_after_move is not None:
+                    self.chess_game_writer.write_white_move(
+                        move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
+                    )
+                else:
+                    self.chess_game_writer.write_white_move(
+                        move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
+                    )
+        if color == "black":
+            if self.figure_read_before_move == "p":
+                if self.figure_read_after_move is not None:
+                    self.chess_game_writer.write_black_move(
+                        move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
+                    )
+                else:
+                    self.chess_game_writer.write_black_move(
+                        move=f"{self.identified_square_after_move}"
+                    )
+            else:
+                if self.figure_read_after_move is not None:
+                    self.chess_game_writer.write_black_move(
+                        move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
+                    )
+                else:
+                    self.chess_game_writer.write_black_move(
+                        move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
+                    )
+
+    def __get_img_after_move(self):
+        position_figure_after = cv2.subtract(
+            self.current_after_move_img.copy(),
+            self.current_before_move_img.copy()
+        )
+        position_figure_after = self.chess_color_detector.get_corrected_img_using_median_filter(position_figure_after)
+
+        return position_figure_after
+
+    def __get_img_before_move(self):
+        position_figure_before = cv2.subtract(
+            self.current_before_move_img.copy(),
+            self.current_after_move_img.copy(),
+        )
+        position_figure_before = self.chess_color_detector.get_corrected_img_using_median_filter(position_figure_before)
+
+        return position_figure_before
+
+    def __set_detected_move(
+            self,
+            img_before,
+            img_after
+    ):
+        img_with_detected_move = cv2.add(img_before.copy(),img_after.copy())
+
+        with self.stacked_image_lock:
+            img_with_detected_move = cv2.add(img_with_detected_move, self.stacked_image["white_corners_on_black_screen"])
+            self.stacked_image["detected_move"] = img_with_detected_move
+
+    def __set_current_before_move_img(
+            self,
+            color: Literal['white', 'black']
+    ):
+
+        with self.stacked_image_lock:
+            img_before_move_direct_from_camera = self.stacked_image["temp_image"]
+
+        self.current_before_move_img = self.chess_color_detector.get_img_with_chosen_mask(
+                figure_mask=color,
+                current_recorded_image=img_before_move_direct_from_camera
+            )
+
+    def __set_current_after_move_img(
+            self,
+            color: Literal['white', 'black']
+    ):
+
+        with self.stacked_image_lock:
+            img_after_move_direct_from_camera = self.stacked_image["temp_image"]
+
+        self.current_after_move_img = self.chess_color_detector.get_img_with_chosen_mask(
+            figure_mask=color,
+            current_recorded_image=img_after_move_direct_from_camera
+        )
+
+    def setup_window_for_images(self):
+        self.window_name = get_chess_config()['main_window_name']
+
+        monitors = get_monitors()
+
+        if monitors:
+            # main_monitor = max(monitors, key=lambda monitor: monitor.width * monitor.height)
+            main_monitor = monitors[1]
+            self.screen_width, self.screen_height = main_monitor.width, main_monitor.height
+            cv2.namedWindow(self.window_name, cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty(self.window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+            self.black_screen = np.zeros((self.screen_height, self.screen_width, 3), dtype=np.uint8)
+        else:
+            raise Exception("None screen")
+
+    @staticmethod
+    def __find_center_of_change(
+            img
+    ):
+        center_elements = []
+        contours = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = imutils.grab_contours(contours)
+        for found_contour in contours:
+            if cv2.contourArea(found_contour) > 10:
+                M = cv2.moments(found_contour)
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                center_elements.append(
+                    {"x": cX, "y": cY}
+                )
+        print(center_elements)
+        return center_elements
+
+    def get_current_saved_image(
+            self
+    ):
+        with self.stacked_image_lock:
+            saved_image = self.stacked_image["temp_image"]
+        return saved_image
+
+    def stack_image_on_main_window(
+            self,
+            image
+    ):
+
+        height, width, _ = image.shape
+
+        start_x = (self.screen_width - width) // 2
+        start_y = (self.screen_height - height) // 2
+
+        self.black_screen[start_y:start_y + height, start_x:start_x + width] = image[:, :, :]
+
+    def show_main_window(
+            self
+    ):
+        cv2.imshow(self.window_name, self.black_screen)
+
+    def set_white_and_black_detected_image(
+            self,
+            img_white,
+            img_black
+    ):
+        img_mixed = img_white + img_black
+
+        with self.stacked_image_lock:
+            self.stacked_image["white_and_black_detected_image"] = img_mixed
+
+    def __setup_camera_get_frame_process(
+            self
+    ):
+        self.__camera_get_frame_process = multiprocessing.Process(
+            target=self._run_camera_get_frame_process,
+            daemon=True,
+            args=(
+                self.__camera_get_frame_process_event,
+                self.stacked_image_lock,
+            )
+        )
+
+    def __start_camera_get_frame_process(self):
+        self.__camera_get_frame_process.start()
+        self.__camera_get_frame_process = None  # TODO Why I must do this?
+
+    def _run_camera_get_frame_process(
+            self,
+            event_frame: multiprocessing.Event(),
+            lock: multiprocessing.Lock(),
+    ):
+        chess_camera = ChessCameraRecorder()
+        init_img = chess_camera.get_image().value
+
+        with lock:
+            self.stacked_image["white_corners_on_black_screen"] = get_white_corners_on_black_screen(init_img)
+
+        while not event_frame.is_set():
+
+            temp_img = chess_camera.get_image().value
+            with lock:
+                self.stacked_image["temp_image"] = temp_img
+            cv2.waitKey(1)
+            # print(self.stacked_image["temp_image"])
+
+    def __setup_camera_display_stacked_images_process(
+            self
+    ):
+        self.__camera_display_stacked_images_process = multiprocessing.Process(
+            target=self._run_camera_display_stacked_images_process,
+            daemon=True,
+            args=(
+                self.__camera_display_stacked_images_process_event,
+                self.stacked_image_lock,
+            )
+        )
+
+    def __start_camera_display_stacked_images_process(
+            self
+    ):
+        self.__camera_display_stacked_images_process.start()
+        self.__camera_display_stacked_images_process = None
+
+    def _run_camera_display_stacked_images_process(
+            self,
+            event: multiprocessing.Event(),
+            lock: multiprocessing.Lock(),
+    ):
+        self.setup_window_for_images()
+        time.sleep(20)
+        while not event.is_set():
+
+            with lock:
+                temp_dict = self.stacked_image
+
+            if temp_dict["temp_image"] is not None:
+                # if temp_dict["white_and_black_detected_image"] is not None:
+                #     if temp_dict["detected_move"] is not None:
+                #         stacked_images_to_show = stack_images(
+                #             1,
+                #             [temp_dict["temp_image"],
+                #              temp_dict["white_and_black_detected_image"],
+                #              temp_dict["detected_move"]
+                #              ]
+                #         )
+                #     else:
+                #         stacked_images_to_show = stack_images(
+                #             1,
+                #             [temp_dict["temp_image"],
+                #              temp_dict["white_and_black_detected_image"]
+                #              ]
+                #         )
+                # else:
+                #     stacked_images_to_show = stack_images(
+                #         1,
+                #         [temp_dict["temp_image"],
+                #          temp_dict["detected_move"]
+                #          ]
+                #     )
+                if temp_dict["detected_move"] is not None:
+                    stacked_images_to_show = stack_images(
+                            1,
+                            [temp_dict["temp_image"],
+                             temp_dict["detected_move"]
+                             ]
+                        )
+                else:
+                    stacked_images_to_show = stack_images(
+                            1,
+                            [temp_dict["temp_image"]
+                             ]
+                        )
+
+                self.stack_image_on_main_window(stacked_images_to_show)
+
+            self.show_main_window()
+            cv2.waitKey(1)
+
+
+# Below code is only example to test.
+# Main idea is chessFletApp client sending messages to chessServer
+if __name__ == "__main__":
+    game_controller = ChessGameController()
+    game_controller.chess_ods_data_r_w.reset_chess_table_to_starting_position()
+    time.sleep(1)
+    a = input("Prepare chessboard and press enter to start game")
+    game_controller.start_chess_game()
+    event = input("Enter name of Event")
+    white_player = input("Enter name of white player")
+    black_player = input("Enter name of black player")
+    game_controller.chess_game_writer.set_event_game(
+        value=event
+    )
+    game_controller.chess_game_writer.set_white_game(
+        value=white_player
+    )
+    game_controller.chess_game_writer.set_black_game(
+        value=black_player
+    )
+    print("Instead of move you can type 'q' and press enter to end game")
+    while True:
+        move = input("Move white figure and [press enter]")
+        if move != "q":
+            game_controller.execute_procedure_of_move(
+                color="white"
+            )
+        else:
+            break
+        move = input("Move black figure and [press enter]")
+        if move != "q":
+            game_controller.execute_procedure_of_move(
+                color="black"
+            )
+        else:
+            break
+    result = input("Set result of game: '1-0' or '0-1' or '1/2-1/2' ")
+    game_controller.end_chess_game(
+        result_of_game=result
+    )
+

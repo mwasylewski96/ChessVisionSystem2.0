@@ -37,6 +37,7 @@ class ChessOdsDataReaderWriter:
                         letter+number: None
                     }
                 )
+        # self.reset_chess_table_to_starting_position()
 
     def reset_chess_table_to_starting_position(self):
         init_positions = self.read_all_chess_table_figures_positions(
@@ -119,7 +120,7 @@ class ChessOdsDataReaderWriter:
 
 if __name__ == "__main__":
     obj = ChessOdsDataReaderWriter()
-    obj.reset_chess_table_to_starting_position()
+    # obj.reset_chess_table_to_starting_position()
     # obj.read_all_chess_table_figures_positions()
     # obj.move_chosen_figure_to_another_place("E2", "E4")
     # obj.move_chosen_figure_to_another_place("C7", "C5")

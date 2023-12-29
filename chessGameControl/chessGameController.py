@@ -17,7 +17,7 @@ from chessOds.chessOdsDataReaderWriter import ChessOdsDataReaderWriter
 from chessTools.chessConfig import get_chess_config
 from chessTools.chessTool import is_button_pressed, stack_images
 
-from typing import Callable, Literal
+from typing import Callable, Literal, Optional
 
 
 class ChessGameController:
@@ -115,44 +115,169 @@ class ChessGameController:
         center_of_before_move = get_point_or_points_board(
             center_elements=center_of_before_move
         )
+        print(f"FOUND: {center_of_after_move}")
+        print(f"FOUND: {center_of_before_move}")
 
-        self.identified_square_after_move = ChessboardIdentifier.check_square_on_chess_board(
-            center=center_of_after_move[0],
-            corners=self.corners_from_json
-        )
+        if len(center_of_before_move) == len(center_of_after_move) == 2:
+            identify_squares = []
+            for center_element in center_of_before_move:
+                identified_square_before_move = ChessboardIdentifier.check_square_on_chess_board(
+                    center=center_element,
+                    corners=self.corners_from_json
+                )
+                identify_squares.append(identified_square_before_move)
+            self.identified_square_before_move = identify_squares
 
-        self.identified_square_before_move = ChessboardIdentifier.check_square_on_chess_board(
-            center=center_of_before_move[0],
-            corners=self.corners_from_json
-        )
+            identify_squares = []
+            for center_element in center_of_after_move:
+                identified_square_after_move = ChessboardIdentifier.check_square_on_chess_board(
+                    center=center_element,
+                    corners=self.corners_from_json
+                )
+                identify_squares.append(identified_square_after_move)
+            self.identified_square_after_move = identify_squares
 
-        ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-            addr_place=self.identified_square_after_move
-        )
+            ods_read_before_move_list = []
+            for addr_place_identified in self.identified_square_before_move:
+                ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                    addr_place=addr_place_identified
+                )
+                ods_read_before_move_list.append(ods_read_before_move)
+            ods_read_before_move = ods_read_before_move_list
 
-        ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-            addr_place=self.identified_square_before_move
-        )
-        print(f"--> {ods_read_before_move}, {ods_read_after_move}")
+            ods_read_after_move_list = []
+            for addr_place_identified in self.identified_square_after_move:
+                ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                    addr_place=addr_place_identified
+                )
+                ods_read_after_move_list.append(ods_read_after_move)
+            ods_read_after_move = ods_read_after_move_list
 
-        try:
-            self.figure_read_after_move = ods_read_after_move[-1]
-        except TypeError:
-            self.figure_read_after_move = None
+            castle_list = []
+            for figure in ods_read_before_move:
+                try:
+                    figure_read_before_move = figure[-1]
+                except TypeError:
+                    figure_read_before_move = None
+                castle_list.append(figure_read_before_move)
+            self.figure_read_before_move = castle_list
 
-        try:
-            self.figure_read_before_move = ods_read_before_move[-1]
-        except TypeError:
-            self.figure_read_before_move = None
+            castle_list = []
+            for figure in ods_read_after_move:
+                try:
+                    figure_read_after_move = figure[-1]
+                except TypeError:
+                    figure_read_after_move = None
+                castle_list.append(figure_read_after_move)
+            self.figure_read_after_move = castle_list
 
-        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-            addr_place_start=self.identified_square_before_move,
-            addr_place_end=self.identified_square_after_move
-        )
+            print(f"Before castle {self.figure_read_before_move}")
+            print(f"After castle {self.figure_read_after_move}")
 
-        self.__write_identified_move_to_txt(
-            color=color
-        )
+            castle = None
+            if color == "white":
+                if "a1" in self.identified_square_before_move and \
+                    "e1" in self.identified_square_before_move and \
+                    "c1" in self.identified_square_after_move and \
+                    "d1" in self.identified_square_after_move:
+
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="a1",
+                        addr_place_end="d1"
+                    )
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="e1",
+                        addr_place_end="c1"
+                    )
+                    castle = "0-0-0"
+
+                if "h1" in self.identified_square_before_move and \
+                        "e1" in self.identified_square_before_move and \
+                        "g1" in self.identified_square_after_move and \
+                        "f1" in self.identified_square_after_move:
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="e1",
+                        addr_place_end="g1"
+                    )
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="h1",
+                        addr_place_end="f1"
+                    )
+                    castle = "0-0"
+
+            if color == "black":
+                if "a8" in self.identified_square_before_move and \
+                        "e8" in self.identified_square_before_move and \
+                        "c8" in self.identified_square_after_move and \
+                        "d8" in self.identified_square_after_move:
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="a8",
+                        addr_place_end="d8"
+                    )
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="e8",
+                        addr_place_end="c8"
+                    )
+                    castle = "0-0-0"
+
+                if "h8" in self.identified_square_before_move and \
+                        "e8" in self.identified_square_before_move and \
+                        "g8" in self.identified_square_after_move and \
+                        "f8" in self.identified_square_after_move:
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="e8",
+                        addr_place_end="g8"
+                    )
+                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                        addr_place_start="h8",
+                        addr_place_end="f8"
+                    )
+                    castle = "0-0"
+
+            self.__write_identified_move_to_txt(
+                color=color,
+                castle=castle
+            )
+
+        else:
+            self.identified_square_after_move = ChessboardIdentifier.check_square_on_chess_board(
+                center=center_of_after_move[0],
+                corners=self.corners_from_json
+            )
+
+            self.identified_square_before_move = ChessboardIdentifier.check_square_on_chess_board(
+                center=center_of_before_move[0],
+                corners=self.corners_from_json
+            )
+
+            ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                addr_place=self.identified_square_after_move
+            )
+
+            ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                addr_place=self.identified_square_before_move
+            )
+
+            print(f"--> {ods_read_before_move}, {ods_read_after_move}")
+
+            try:
+                self.figure_read_after_move = ods_read_after_move[-1]
+            except TypeError:
+                self.figure_read_after_move = None
+
+            try:
+                self.figure_read_before_move = ods_read_before_move[-1]
+            except TypeError:
+                self.figure_read_before_move = None
+
+            self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                addr_place_start=self.identified_square_before_move,
+                addr_place_end=self.identified_square_after_move
+            )
+
+            self.__write_identified_move_to_txt(
+                color=color
+            )
 
         if color == "white":
             self.__set_current_before_move_img(
@@ -173,46 +298,57 @@ class ChessGameController:
 
     def __write_identified_move_to_txt(
             self,
-            color: Literal['white', 'black']
+            color: Literal['white', 'black'],
+            castle: Optional[Literal['0-0-0', '0-0']] = None
     ):
         if color == "white":
-            if self.figure_read_before_move == "p":
-                if self.figure_read_after_move is not None:
-                    self.chess_game_writer.write_white_move(
-                        move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
-                    )
+            if castle is None:
+                if self.figure_read_before_move == "p":
+                    if self.figure_read_after_move is not None:
+                        self.chess_game_writer.write_white_move(
+                            move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
+                        )
+                    else:
+                        self.chess_game_writer.write_white_move(
+                            move=f"{self.identified_square_after_move}"
+                        )
                 else:
-                    self.chess_game_writer.write_white_move(
-                        move=f"{self.identified_square_after_move}"
-                    )
+                    if self.figure_read_after_move is not None:
+                        self.chess_game_writer.write_white_move(
+                            move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
+                        )
+                    else:
+                        self.chess_game_writer.write_white_move(
+                            move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
+                        )
             else:
-                if self.figure_read_after_move is not None:
-                    self.chess_game_writer.write_white_move(
-                        move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
-                    )
-                else:
-                    self.chess_game_writer.write_white_move(
-                        move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
-                    )
+                self.chess_game_writer.write_white_move(
+                    move=f"{castle}"
+                )
         if color == "black":
-            if self.figure_read_before_move == "p":
-                if self.figure_read_after_move is not None:
-                    self.chess_game_writer.write_black_move(
-                        move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
-                    )
+            if castle is None:
+                if self.figure_read_before_move == "p":
+                    if self.figure_read_after_move is not None:
+                        self.chess_game_writer.write_black_move(
+                            move=f"{self.identified_square_before_move[0]}x{self.identified_square_after_move}"
+                        )
+                    else:
+                        self.chess_game_writer.write_black_move(
+                            move=f"{self.identified_square_after_move}"
+                        )
                 else:
-                    self.chess_game_writer.write_black_move(
-                        move=f"{self.identified_square_after_move}"
-                    )
+                    if self.figure_read_after_move is not None:
+                        self.chess_game_writer.write_black_move(
+                            move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
+                        )
+                    else:
+                        self.chess_game_writer.write_black_move(
+                            move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
+                        )
             else:
-                if self.figure_read_after_move is not None:
-                    self.chess_game_writer.write_black_move(
-                        move=f"{self.figure_read_before_move}x{self.identified_square_after_move}"
-                    )
-                else:
-                    self.chess_game_writer.write_black_move(
-                        move=f"{self.figure_read_before_move}{self.identified_square_after_move}"
-                    )
+                self.chess_game_writer.write_black_move(
+                    move=f"{castle}"
+                )
 
     def __get_img_after_move(self):
         position_figure_after = cv2.subtract(
@@ -299,7 +435,6 @@ class ChessGameController:
                 center_elements.append(
                     {"x": cX, "y": cY}
                 )
-        print(center_elements)
         return center_elements
 
     def get_current_saved_image(

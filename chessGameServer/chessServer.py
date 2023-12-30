@@ -1,170 +1,157 @@
-############################
-###  EXTERNAL LIBRARIES  ###
-############################
-import logging
-import sys
-
-from aiohttp import web, ClientResponseError
-import asyncio
-from copy import deepcopy
-from dataclasses import dataclass
-import json
-import os
-import pkg_resources as res
+########################
+#  EXTERNAL LIBRARIES  #
+########################
+from aiohttp import web
 import socketio
-import ssl
 from typing import Type
-import subprocess
-
-############################
-###  INTERNAL LIBRARIES  ###
-############################
-from endpoints import *
-from jetson_backend.logger import Logger
-from Jetson_model import Model
-from JSON_examples.Jetson_Server_ENDPOINTY import *
-from SocketOutputs import *
-from optim_treatment_utils.config import get_jetson_aws_config
-from optim_treatment_utils.tools import Result, get_process_by_name
-from optim_treatment_utils.APIs.machine_learning_api.InputDTOs import UsersLoginCRMInput
-
-jetson_aws_config = get_jetson_aws_config()
+##########################
+#  INTERNAL LIBRARIES  #
+##########################
+from chessApiTools.chessEndpoints import *
+from chessApiTools.chessSocketOutputs import *
+from chessGameModel.chessModel import ChessModel
 
 
-class Server(web.Application):
+class ChessServer(web.Application):
 
-    def __init__(self):
-        super(Server, self).__init__()
+    def __init__(
+            self,
+            chess_client: Literal['chess_local_gui', 'chess_flet_app']
+    ):
+        super(ChessServer, self).__init__()
 
-        self.model = Model()
-        self.socket: socketio.AsyncServer = Server.Socket(self.model)
-        self.cleanup_ctx.append(self.subprocesses)
-        self.socket.attach(self)
+        self.chess_model = ChessModel()
+        self.socket: socketio.AsyncServer = ChessServer.Socket(
+            chess_model=self.chess_model,
+            chess_client=chess_client
+        )
+        self.cleanup_ctx.append(
+            self.subprocesses
+        )
+        self.socket.attach(
+            self
+        )
 
-        self.__logger = logging.getLogger(__name__)
-        Logger.setup_file_handler(logger=__name__, handler_level=logging.INFO)
-        Logger.setup_stdout_handler(logger=__name__, handler_level=logging.DEBUG)
-        self.__logger.info("Initialising server...")
-
-    async def subprocesses(self, app):
-        self.__logger.info("Server turn on")
-        self.model.hsi_methods.set_loop(asyncio.get_running_loop())
-        self.model.laser_stack_methods.set_loop(asyncio.get_running_loop())
+    async def subprocesses(
+            self,
+            app
+    ):
+        self.chess_model.chess_methods.chess_game_controller.reset_chess_table_to_starting_position()
+        print("Server turn on")
         yield
         print("Server turn off")
 
     class Socket(socketio.AsyncServer):
 
-        def __init__(self, model: Model, async_mode='aiohttp'):
-            super(Server.Socket, self).__init__(async_mode=async_mode, cors_allowed_origins='*')
-            # self.log_where_string = f'[{type(self).__name__}] ||'
+        def __init__(
+                self,
+                chess_model: ChessModel,
+                chess_client: Literal['chess_local_gui', 'chess_flet_app'],
+                async_mode='aiohttp'
+        ):
+            super(ChessServer.Socket, self).__init__(async_mode=async_mode, cors_allowed_origins='*')
 
-            self.__logger = logging.getLogger(__name__)
+            self.chess_game_namespace = "/chess_game"
+            self.register_namespace(socketio.AsyncNamespace(
+                namespace=self.chess_game_namespace
+            ))
 
-            self.default_namespace = "/"
-            self.test_gui_namespace = "/test_gui"
+            if chess_client == "chess_local_gui":
+                self.client_event_pattern = "_local_gui_response"
+            if chess_client == "chess_flet_app":
+                self.client_event_pattern = "_chess_flet_app_response"
 
-
-            self.register_namespace(socketio.AsyncNamespace(namespace=self.test_namespace))
-
-
-            def channel_event_decorator(
-                    this_model_method: callable,
-                    this_endpoint: Type[Endpoint],  # TODO: it is a class, not instance
-                    socket_output: Type[SocketOutput],  # TODO: it is a class, not instance
-                    server_namespace: str = '/',
-                    client_namespace: str = '/'
+            def chess_server_socket_decorator(
+                    chess_model_method: callable,
+                    chess_endpoint: Type[Endpoint],
+                    chess_socket_output: Type[SocketOutput],
             ):
                 """
 
-                :param this_model_method:
-                :param this_endpoint:
-                :param socket_output:
-                :param server_namespace: particular path-like namespace on Server. Example: '/test'.
-                :param client_namespace: particular path-like namespace on Client. Example: '/test'.
+                :param chess_model_method:
+                :param chess_endpoint:
+                :param chess_socket_output:
                 :return:
                 """
 
                 def inner(
-                        wrapped_fun: callable
+                        wrapped_chess_server_method: callable
                 ):
                     """
 
-                    :param wrapped_fun: function that will be wrapped.
+                    :param wrapped_chess_server_method:
                     :return:
                     """
 
-                    self.__logger.debug(f"{self.log_where_string} Setting up `{wrapped_fun.__name__}` endpoint on namespace: `{server_namespace}`.")
+                    print(f"Setting up `{wrapped_chess_server_method.__name__}` "
+                          f"endpoint on namespace: `{self.chess_game_namespace}`.")
 
                     async def wrapper(
                             sid,
                             data_dict: Optional[dict] = None
                     ) -> None:
-                        self.__logger.debug(f"{self.log_where_string} `{wrapped_fun.__name__}` process started on namespace: `{server_namespace}`... data_dict: `{data_dict}`")
-                        parsed_input = this_endpoint.parse_input(sid=sid, data=data_dict)
-                        self.__logger.debug(f"{self.log_where_string} Acquiring data with `{parsed_input}`")
-                        response = await this_model_method(endpoint_input=parsed_input)
-                        if response.success:
-                            self.__logger.debug(f"{self.log_where_string} {wrapped_fun.__name__} process finished successfully!")
-                        self.__logger.debug(f"Emitting response to: '{wrapped_fun.__name__ + '_response'}' on namespace: '{client_namespace}'")
-                        self.__logger.debug(f"Response: {response}")
+                        print(f"{wrapped_chess_server_method.__name__}` process started on namespace:"
+                              f" `{self.chess_game_namespace}`... data_dict: `{data_dict}`")
+                        parsed_input = chess_endpoint.parse_input(
+                            sid=sid,
+                            data=data_dict
+                        )
+                        print(f"Acquiring data with `{parsed_input}`")
+                        chess_model_response = await chess_model_method(
+                            chess_endpoint_input=parsed_input
+                        )
+                        if chess_model_response.success:
+                            print(f"{wrapped_chess_server_method.__name__} process finished successfully!")
+                        print(f"Emitting response to: '{wrapped_chess_server_method.__name__ + '_response'}' on namespace: '{self.chess_game_namespace}'")
+                        print(f"Chess model response: {chess_model_response}")
                         await self.emit(
-                            f"{wrapped_fun.__name__ + '_response'}",
-                            response.serialize(),
-                            namespace=client_namespace,
+                            f"{wrapped_chess_server_method.__name__ + self.client_event_pattern}",
+                            chess_model_response.serialize(),
+                            namespace=self.chess_game_namespace,
                             room=sid
                         )
 
-                    self.on(wrapped_fun.__name__, handler=wrapper, namespace=server_namespace)
+                    self.on(wrapped_chess_server_method.__name__, handler=wrapper, namespace=self.chess_game_namespace)
                 return inner
 
-            @channel_event_decorator(
-                this_model_method=model.laser_stack_methods.reconfigure_direct_params_laser_process,
-                this_endpoint=ReconfigureDirectParamsLaserProcessEndpoint,
-                socket_output=ReconfigureDirectParamsLaserProcessOutput,
-                server_namespace=self.laser_stack_controller_namespace,
-                client_namespace=self.laser_stack_controller_namespace  # same namespace
+            @chess_server_socket_decorator(
+                chess_model_method=chess_model.chess_methods.start_chess_game,
+                chess_endpoint=StartChessGameEndpoint,
+                chess_socket_output=StartChessGameOutput,
             )
-            async def reconfigure_direct_params_laser_process():
+            async def start_chess_game():
                 pass
 
-            @channel_event_decorator(
-                this_model_method=model.laser_stack_methods.get_target_safety_profile_laser_process,
-                this_endpoint=GetTargetSafetyProfileLaserProcessEndpoint,
-                socket_output=GetTargetSafetyProfileLaserProcessOutput,
-                server_namespace=self.laser_stack_controller_namespace,
-                client_namespace=self.laser_stack_controller_namespace  # same namespace
+            @chess_server_socket_decorator(
+                chess_model_method=chess_model.chess_methods.write_event_and_players_data_chess_game,
+                chess_endpoint=WriteEventAndPlayersDataChessGameEndpoint,
+                chess_socket_output=WriteEventAndPlayersDataChessGameOutput,
             )
-            async def get_target_safety_profile_server_laser_process():
-                """
-                This endpoint is used for emergency turning off all pwm laser stacks.
-                This request can be executed all the time.
-                :param:
-                :return: None
-                """
+            async def write_event_and_players_data_chess_game():
                 pass
 
-
-        async def send_time_to_end_to_gui(
-                self,
-                response: SendTimeToEndToGuiOutput
-        ) -> None:
-            """
-            This method is used for sending response to gui about current passed time of epilation.
-            :param response:
-            :return: None
-            """
-            await self.emit(
-                "send_time_to_end_to_gui_response",
-                data=response.serialize(),
-                namespace=self.laser_stack_controller_namespace
+            @chess_server_socket_decorator(
+                chess_model_method=chess_model.chess_methods.execute_procedure_of_move,
+                chess_endpoint=ExecuteProcedureOfMoveEndpoint,
+                chess_socket_output=ExecuteProcedureOfMoveOutput,
             )
+            async def execute_procedure_of_move():
+                pass
 
-#####################################################################################################################
+            @chess_server_socket_decorator(
+                chess_model_method=chess_model.chess_methods.end_chess_game,
+                chess_endpoint=EndChessGameEndpoint,
+                chess_socket_output=EndChessGameOutput,
+            )
+            async def end_chess_game():
+                pass
 
 
 def main():
-    server = Server()
+    server = ChessServer(
+        chess_client="chess_local_gui"
+        # chess_client="chess_flet_app"
+    )
     web.run_app(server)
 
 

@@ -4,6 +4,7 @@ import json
 from chessCameraProcessing.chessCameraRecording import ChessCameraRecorder
 from chessTools.chessTool import stack_images, is_button_pressed
 from chessTools.chessConfig import get_chess_path_to_corners
+from chessImageProcessing.chessCornerDetector import load_chess_corners
 
 
 class ChessCalibrator:
@@ -17,8 +18,7 @@ class ChessCalibrator:
 
 
 if __name__ == "__main__":
-    with open(get_chess_path_to_corners(), 'r') as file:
-        corners = json.load(file)
+    corners = load_chess_corners()
     camera = ChessCameraRecorder()
     if camera.error is not None:
         print(camera.error)

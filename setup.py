@@ -9,6 +9,7 @@ setup(
     },
     install_requires=[
         'customtkinter',
+        'packaging',
         'ezodf',
         'lxml',
         'aiohttp',

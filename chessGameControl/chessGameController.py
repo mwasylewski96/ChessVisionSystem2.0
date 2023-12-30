@@ -15,7 +15,7 @@ from chessImageProcessing.chessSquareIdentifier import ChessboardIdentifier
 from chessOds.chessOdsDataReaderWriter import ChessOdsDataReaderWriter
 
 from chessTools.chessConfig import get_chess_config
-from chessTools.chessTool import is_button_pressed, stack_images
+from chessTools.chessTool import is_button_pressed, stack_images, Result
 
 from typing import Callable, Literal, Optional
 
@@ -69,26 +69,66 @@ class ChessGameController:
         self.__setup_camera_display_stacked_images_process()
         self.__start_camera_display_stacked_images_process()
 
+        self.activated_color = None
+
         print("Initialised")
 
-    def start_chess_game(self):
-        self.__set_current_before_move_img(
+    def activate_color(
+            self,
+            color: Literal["white", "black"]
+    ):
+        self.activated_color = color
+
+    def reset_chess_table_to_starting_position(
+            self
+    ):
+        self.chess_ods_data_r_w.reset_chess_table_to_starting_position()
+
+    def start_chess_game(
+            self
+    ):
+        try:
+            self.__set_current_before_move_img(
+                color="white"
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        try:
+            self.reset_chess_table_to_starting_position()
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        try:
+            self.chess_game_writer.reset_to_new_game(
+                game_name="game"
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        self.activate_color(
             color="white"
         )
-        self.chess_ods_data_r_w.reset_chess_table_to_starting_position()
-        self.chess_game_writer.reset_to_new_game(
-            game_name="game"
-        )
+
+        return Result.success()
 
     def execute_procedure_of_move(
             self,
             color: Literal['white', 'black']
     ):
         if color == "white":
+            assert self.activated_color == "white", "[FAILURE] It is not white move!"
             self.__set_current_after_move_img(
                 color="white"
             )
         if color == "black":
+            assert self.activated_color == "black", "[FAILURE] It is not black move!"
             self.__set_current_after_move_img(
                 color="black"
             )
@@ -118,7 +158,13 @@ class ChessGameController:
         print(f"FOUND: {center_of_after_move}")
         print(f"FOUND: {center_of_before_move}")
 
-        if len(center_of_before_move) == len(center_of_after_move) == 2:
+        castle_strong_move = len(center_of_before_move) == len(center_of_after_move) == 2
+        castle_not_strong_1 = len(center_of_before_move) == 2 and len(center_of_after_move) == 1
+        castle_not_strong_2 = len(center_of_before_move) == 1 and len(center_of_after_move) == 2
+        if castle_not_strong_1 or castle_not_strong_2:
+            print("WARNING! It is probably castle but check move!")
+
+        if castle_strong_move or castle_not_strong_1 or castle_not_strong_2:
             identify_squares = []
             for center_element in center_of_before_move:
                 identified_square_before_move = ChessboardIdentifier.check_square_on_chess_board(
@@ -139,17 +185,28 @@ class ChessGameController:
 
             ods_read_before_move_list = []
             for addr_place_identified in self.identified_square_before_move:
-                ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-                    addr_place=addr_place_identified
-                )
+                try:
+                    ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                        addr_place=addr_place_identified
+                    )
+                except Exception as err:
+                    return Result.error(
+                        error=f"{err}"
+                    )
+
                 ods_read_before_move_list.append(ods_read_before_move)
             ods_read_before_move = ods_read_before_move_list
 
             ods_read_after_move_list = []
             for addr_place_identified in self.identified_square_after_move:
-                ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-                    addr_place=addr_place_identified
-                )
+                try:
+                    ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                        addr_place=addr_place_identified
+                    )
+                except Exception as err:
+                    return Result.error(
+                        error=f"{err}"
+                    )
                 ods_read_after_move_list.append(ods_read_after_move)
             ods_read_after_move = ods_read_after_move_list
 
@@ -181,28 +238,53 @@ class ChessGameController:
                     "c1" in self.identified_square_after_move and \
                     "d1" in self.identified_square_after_move:
 
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="a1",
-                        addr_place_end="d1"
-                    )
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="e1",
-                        addr_place_end="c1"
-                    )
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="a1",
+                            addr_place_end="d1"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="e1",
+                            addr_place_end="c1"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
                     castle = "0-0-0"
 
                 if "h1" in self.identified_square_before_move and \
                         "e1" in self.identified_square_before_move and \
                         "g1" in self.identified_square_after_move and \
                         "f1" in self.identified_square_after_move:
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="e1",
-                        addr_place_end="g1"
-                    )
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="h1",
-                        addr_place_end="f1"
-                    )
+
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="e1",
+                            addr_place_end="g1"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="h1",
+                            addr_place_end="f1"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
                     castle = "0-0"
 
             if color == "black":
@@ -210,35 +292,63 @@ class ChessGameController:
                         "e8" in self.identified_square_before_move and \
                         "c8" in self.identified_square_after_move and \
                         "d8" in self.identified_square_after_move:
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="a8",
-                        addr_place_end="d8"
-                    )
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="e8",
-                        addr_place_end="c8"
-                    )
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="a8",
+                            addr_place_end="d8"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="e8",
+                            addr_place_end="c8"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
                     castle = "0-0-0"
 
                 if "h8" in self.identified_square_before_move and \
                         "e8" in self.identified_square_before_move and \
                         "g8" in self.identified_square_after_move and \
                         "f8" in self.identified_square_after_move:
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="e8",
-                        addr_place_end="g8"
-                    )
-                    self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                        addr_place_start="h8",
-                        addr_place_end="f8"
-                    )
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="e8",
+                            addr_place_end="g8"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
+                    try:
+                        self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                            addr_place_start="h8",
+                            addr_place_end="f8"
+                        )
+                    except Exception as err:
+                        return Result.error(
+                            error=f"{err}"
+                        )
+
                     castle = "0-0"
 
-            self.__write_identified_move_to_txt(
-                color=color,
-                castle=castle
-            )
-
+            try:
+                self.__write_identified_move_to_txt(
+                    color=color,
+                    castle=castle
+                )
+            except Exception as err:
+                return Result.error(
+                    error=f"{err}"
+                )
         else:
             self.identified_square_after_move = ChessboardIdentifier.check_square_on_chess_board(
                 center=center_of_after_move[0],
@@ -250,13 +360,23 @@ class ChessGameController:
                 corners=self.corners_from_json
             )
 
-            ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-                addr_place=self.identified_square_after_move
-            )
+            try:
+                ods_read_after_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                    addr_place=self.identified_square_after_move
+                )
+            except Exception as err:
+                return Result.error(
+                    error=f"{err}"
+                )
 
-            ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
-                addr_place=self.identified_square_before_move
-            )
+            try:
+                ods_read_before_move = self.chess_ods_data_r_w.get_chosen_figure_from_given_place(
+                    addr_place=self.identified_square_before_move
+                )
+            except Exception as err:
+                return Result.error(
+                    error=f"{err}"
+                )
 
             print(f"--> {ods_read_before_move}, {ods_read_after_move}")
 
@@ -270,31 +390,92 @@ class ChessGameController:
             except TypeError:
                 self.figure_read_before_move = None
 
-            self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
-                addr_place_start=self.identified_square_before_move,
-                addr_place_end=self.identified_square_after_move
-            )
 
-            self.__write_identified_move_to_txt(
-                color=color
-            )
+            try:
+                self.chess_ods_data_r_w.move_chosen_figure_to_another_place(
+                    addr_place_start=self.identified_square_before_move,
+                    addr_place_end=self.identified_square_after_move
+                )
+            except Exception as err:
+                return Result.error(
+                    error=f"{err}"
+                )
+
+            try:
+                self.__write_identified_move_to_txt(
+                    color=color
+                )
+            except Exception as err:
+                return Result.error(
+                    error=f"{err}"
+                )
 
         if color == "white":
             self.__set_current_before_move_img(
+                color="black"
+            )
+            self.activate_color(
                 color="black"
             )
         if color == "black":
             self.__set_current_before_move_img(
                 color="white"
             )
+            self.activate_color(
+                color="white"
+            )
+
+        return Result.success()
 
     def end_chess_game(
             self,
             result_of_game: Literal['1-0', '0-1', '1/2-1/2']
     ):
-        self.chess_game_writer.set_result_game(
-            value=result_of_game
-        )
+        try:
+            self.chess_game_writer.set_result_game(
+                value=result_of_game
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        return Result.success()
+
+    def write_event_and_players_data_chess_game(
+            self,
+            event,
+            white_player,
+            black_player
+    ):
+        try:
+            self.chess_game_writer.set_event_game(
+                value=event
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        try:
+            self.chess_game_writer.set_white_game(
+                value=white_player
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        try:
+            self.chess_game_writer.set_black_game(
+                value=black_player
+            )
+        except Exception as err:
+            return Result.error(
+                error=f"{err}"
+            )
+
+        return Result.success()
 
     def __write_identified_move_to_txt(
             self,
@@ -437,13 +618,6 @@ class ChessGameController:
                 )
         return center_elements
 
-    def get_current_saved_image(
-            self
-    ):
-        with self.stacked_image_lock:
-            saved_image = self.stacked_image["temp_image"]
-        return saved_image
-
     def stack_image_on_main_window(
             self,
             image
@@ -504,7 +678,6 @@ class ChessGameController:
             with lock:
                 self.stacked_image["temp_image"] = temp_img
             cv2.waitKey(1)
-            # print(self.stacked_image["temp_image"])
 
     def __setup_camera_display_stacked_images_process(
             self

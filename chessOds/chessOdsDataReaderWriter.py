@@ -1,13 +1,13 @@
-############################
-###  EXTERNAL LIBRARIES  ###
-############################
+########################
+#  EXTERNAL LIBRARIES  #
+########################
 from enum import Enum
 import ezodf
 from typing import Literal, Optional
 
-############################
-###  INTERNAL LIBRARIES  ###
-############################
+########################
+#  INTERNAL LIBRARIES  #
+########################
 from chessTools.chessConfig import get_chess_current_game_table_config, \
     get_chess_init_game_table_config, get_chess_config
 

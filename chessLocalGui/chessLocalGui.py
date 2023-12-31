@@ -123,7 +123,7 @@ class GUIClient:
 
         def __init__(
                 self,
-                event_loop: asyncio.BaseEventLoop,
+                event_loop: asyncio.AbstractEventLoop,
                 on_start_chess_game,
                 on_write_event_and_players_data_chess_game,
                 on_execute_procedure_of_move_white,

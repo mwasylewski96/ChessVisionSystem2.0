@@ -3,25 +3,28 @@ from chessFletApp.config_app import get_view_config, get_view_3_config
 from chessFletApp.chessGameFletApp.view import ViewApp
 
 
-class View3(ViewApp):
+class View3(ViewApp, ft.UserControl):
 
     def __init__(
-            self
+            self,
+            page
     ):
+        super().__init__()
+        self.page = page
         self.black_time = get_view_3_config()["BUTTON_BLACK"]["TIME"]
         self.white_time = get_view_3_config()["BUTTON_WHITE"]["TIME"]
 
-    def get_view(
-            self
-    ):
-        return ft.View(
-            route="/view3",
-            controls=[
-                self.get_main_container_stack()
-            ]
-        )
+    # def get_view(
+    #         self
+    # ):
+    #     return ft.View(
+    #         route="/view3",
+    #         controls=[
+    #             self.get_main_container_stack()
+    #         ]
+    #     )
 
-    def get_main_container_stack(
+    def build(
             self
     ):
         return ft.Container(
@@ -98,8 +101,7 @@ class View3(ViewApp):
                 bgcolor=main_config["BG_COLOR"]
             )
 
-    @staticmethod
-    def put_button_pause():
+    def put_button_pause(self):
         main_config = get_view_config()["MAIN"]
         config = get_view_3_config()["BUTTON_PAUSE"]
         return ft.Container(
@@ -111,6 +113,7 @@ class View3(ViewApp):
                             icon=config["ICON"],
                             icon_color=config["COLOR"],
                             icon_size=config["SIZE"],
+                            on_click=lambda _: self.page.go('/view4')
                         ),
                     ]
                 )
@@ -121,23 +124,3 @@ class View3(ViewApp):
             bgcolor=main_config["BG_COLOR"]
             # bgcolor="red"
         )
-
-
-def main(page: ft.Page):
-    page.horizontal_alignment = "center"
-    page.vertical_alignment = "center"
-    page.title = "Chess Clock"
-
-    view = View3()
-    main_cnt = view.get_main_container_stack()
-    # vieww = view.get_view()
-    # page.views.clear()
-    # page.views.append(
-    #     view
-    # )
-    page.add(
-        main_cnt
-    )
-
-
-ft.app(target=main)

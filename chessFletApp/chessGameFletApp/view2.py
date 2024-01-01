@@ -3,19 +3,26 @@ from chessFletApp.config_app import get_view_config, get_view_2_config
 from chessFletApp.chessGameFletApp.view import ViewApp
 
 
-class View2(ViewApp):
+class View2(ViewApp, ft.UserControl):
 
-    def get_view(
-            self
+    def __init__(
+            self,
+            page
     ):
-        return ft.View(
-            route="/view2",
-            controls=[
-                self.get_main_container_stack()
-            ]
-        )
+        super().__init__()
+        self.page = page
 
-    def get_main_container_stack(
+    # def get_view(
+    #         self
+    # ):
+    #     return ft.View(
+    #         route="/view2",
+    #         controls=[
+    #             self.get_main_container_stack()
+    #         ]
+    #     )
+
+    def build(
             self
     ):
         return ft.Container(
@@ -56,8 +63,7 @@ class View2(ViewApp):
             top=config["TOP"]
         )
 
-    @staticmethod
-    def put_button_start_game():
+    def put_button_start_game(self):
         main_config = get_view_config()["MAIN"]
         config = get_view_2_config()["BUTTON_START_GAME"]
         return ft.Container(
@@ -70,7 +76,9 @@ class View2(ViewApp):
                             style=ft.ButtonStyle(
                                 bgcolor=config["BG_COLOR"],
                                 color=config["COLOR"]
-                            ))
+                            ),
+                            on_click=lambda _: self.page.go('/view3')
+                        )
                     ]
                 )
             ]),
@@ -80,8 +88,7 @@ class View2(ViewApp):
             bgcolor=main_config["BG_COLOR"]
         )
 
-    @staticmethod
-    def put_button_back():
+    def put_button_back(self):
         main_config = get_view_config()["MAIN"]
         config = get_view_config()["BUTTON_BACK"]
         return ft.Container(
@@ -97,7 +104,8 @@ class View2(ViewApp):
                             style=ft.ButtonStyle(
                                 bgcolor=config["BG_COLOR"],
                                 color=config["COLOR"]
-                            )
+                            ),
+                            on_click=lambda _: self.page.go('/view1')
                         ),
                     ]
                 )
@@ -108,23 +116,3 @@ class View2(ViewApp):
             left=config["LEFT2"],
             bgcolor=main_config["BG_COLOR"]
         )
-
-
-def main(page: ft.Page):
-    page.horizontal_alignment = "center"
-    page.vertical_alignment = "center"
-    page.title = "Chess Clock"
-
-    view = View2()
-    main_cnt = view.get_main_container_stack()
-    # vieww = view.get_view()
-    # page.views.clear()
-    # page.views.append(
-    #     view
-    # )
-    page.add(
-        main_cnt
-    )
-
-
-ft.app(target=main)

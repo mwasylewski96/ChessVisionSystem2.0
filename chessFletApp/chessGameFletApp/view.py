@@ -5,20 +5,17 @@ import flet as ft
 
 class ViewApp(ABC):
 
-    def __init__(self):
-        pass
+    # @abstractmethod
+    # def get_view(
+    #         self
+    # ) -> ft.View:
+    #     raise NotImplementedError
 
-    @abstractmethod
-    def get_view(
-            self
-    ) -> ft.View:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_main_container_stack(
-            self
-    ) -> ft.Container:
-        raise NotImplementedError
+    # @abstractmethod
+    # def get_main_container_stack(
+    #         self
+    # ) -> ft.Container:
+    #     raise NotImplementedError
 
     @staticmethod
     def put_background_image():

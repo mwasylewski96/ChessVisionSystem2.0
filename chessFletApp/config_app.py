@@ -9,7 +9,8 @@ def get_view_config():
             "WIDTH": 411,
             "HEIGHT": 700,
             "BG_COLOR": "transparent",
-            "IMG_SRC": main_chess_vision_system_20_path + "/chessFletApp/chessGameFletApp/assets/background.png"
+            # "IMG_SRC": main_chess_vision_system_20_path + "/chessFletApp/chessGameFletApp/assets/background.png"
+            "IMG_SRC": "assets/background.png"
         },
         "TEXT_CHESS_CLOCK": {
             "VALUE": "CHESS CLOCK",

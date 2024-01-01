@@ -5,7 +5,8 @@ setup(
     packages=find_packages(),
     package_data={
         'chessOds': ['chessCurrentGameTable.ods', 'chessInitGameTable.ods'],
-        'chessTools': ['chessConfig.yaml']
+        'chessTools': ['chessConfig.yaml'],
+        'chessFletApp': ['chessGameFletApp/assets/background.png'],
     },
     install_requires=[
         'customtkinter',

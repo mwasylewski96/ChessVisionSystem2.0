@@ -1,118 +1,129 @@
 import flet as ft
+from chessFletApp.config_app import get_view_config, get_view_2_config
+from chessFletApp.chessGameFletApp.view import ViewApp
 
-width = 411
-height = 700
-bg_col = "transparent"
 
-top_chess_clock = 40
-top_prepare_chess_board = 280
-top_button_start_game = 330
-top_buttons = 630
+class View2(ViewApp):
 
-body = ft.Container(
-    ft.Stack(
-        [
-            ft.Image(
-                src="assets/background.png",
-                width=width,
-                height=height
-            ),
-            ft.Container(
-                ft.Column([
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                        controls=[
-                            ft.Text(
-                                "CHESS CLOCK",
-                                size=50,
-                                color=ft.colors.WHITE,
-                                italic=True,
-                                weight=ft.FontWeight.W_500
-                            )
-                        ]
-                    )
-                ]),
-                alignment=ft.alignment.center,
-                width=width,
-                height=100,
-                bgcolor=bg_col,
-                top=top_chess_clock
-            ),
-            ft.Container(
-                ft.Column([
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                        controls=[
-                            ft.Text(
-                                "PREPARE CHESSBOARD!",
-                                size=25,
-                                color=ft.colors.WHITE,
-                                italic=True,
-                                weight=ft.FontWeight.W_500
-                            )
-                        ]
-                    )
-                ]),
-                alignment=ft.alignment.center,
-                width=width,
-                height=100,
-                bgcolor=bg_col,
-                top=top_prepare_chess_board
-            ),
-            ft.Container(
-                ft.Column([
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                        controls=[
-                            ft.ElevatedButton(
-                                content=ft.Text(value="START GAME", size=30),
-                                style=ft.ButtonStyle(
-                                    bgcolor=ft.colors.DEEP_PURPLE_200,
-                                    color=ft.colors.WHITE
-                                )),
-                        ]
-                    )
-                ]),
-                top=top_button_start_game,
-                width=width,
-                height=50,
-                bgcolor=bg_col
-            ),
-            ft.Container(
-                ft.Column([
-                    ft.Row(
-                        alignment=ft.MainAxisAlignment.START,
-                        controls=[
-                            ft.ElevatedButton(
-                                content=ft.Text(
-                                    value="BACK",
-                                    size=30
-                                ),
-                                style=ft.ButtonStyle(
-                                bgcolor=ft.colors.DEEP_PURPLE_200,
-                                color=ft.colors.WHITE
-                            )),
-                        ]
-                    )
-                ]),
-                top=top_buttons,
-                width=width,
-                height=50,
-                left=30,
-                bgcolor=bg_col
+    def get_view(
+            self
+    ):
+        return ft.View(
+            route="/view2",
+            controls=[
+                self.get_main_container_stack()
+            ]
+        )
+
+    def get_main_container_stack(
+            self
+    ):
+        return ft.Container(
+            ft.Stack(
+                [
+                    self.put_background_image(),
+                    self.put_text_chess_clock(),
+                    self.put_text_prepare_chessboard(),
+                    self.put_button_start_game(),
+                    self.put_button_back()
+                ]
             )
-        ]
-    )
-)
+        )
+
+    @staticmethod
+    def put_text_prepare_chessboard():
+        main_config = get_view_config()["MAIN"]
+        config = get_view_2_config()["TEXT_PREPARE_CHESSBOARD"]
+        return ft.Container(
+            ft.Column([
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                    controls=[
+                        ft.Text(
+                            value=config["VALUE"],
+                            size=config["SIZE"],
+                            color=config["COLOR"],
+                            italic=True,
+                            weight=config["WEIGHT"]
+                        )
+                    ]
+                )
+            ]),
+            alignment=ft.alignment.center,
+            width=main_config["WIDTH"],
+            height=config["HEIGHT"],
+            bgcolor=main_config["BG_COLOR"],
+            top=config["TOP"]
+        )
+
+    @staticmethod
+    def put_button_start_game():
+        main_config = get_view_config()["MAIN"]
+        config = get_view_2_config()["BUTTON_START_GAME"]
+        return ft.Container(
+            ft.Column([
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                    controls=[
+                        ft.ElevatedButton(
+                            content=ft.Text(value=config["VALUE"], size=config["SIZE"]),
+                            style=ft.ButtonStyle(
+                                bgcolor=config["BG_COLOR"],
+                                color=config["COLOR"]
+                            ))
+                    ]
+                )
+            ]),
+            top=config["TOP"],
+            width=main_config["WIDTH"],
+            height=config["HEIGHT"],
+            bgcolor=main_config["BG_COLOR"]
+        )
+
+    @staticmethod
+    def put_button_back():
+        main_config = get_view_config()["MAIN"]
+        config = get_view_config()["BUTTON_BACK"]
+        return ft.Container(
+            ft.Column([
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.START,
+                    controls=[
+                        ft.ElevatedButton(
+                            content=ft.Text(
+                                value=config["VALUE"],
+                                size=config["SIZE"]
+                            ),
+                            style=ft.ButtonStyle(
+                                bgcolor=config["BG_COLOR"],
+                                color=config["COLOR"]
+                            )
+                        ),
+                    ]
+                )
+            ]),
+            top=config["TOP"],
+            width=main_config["WIDTH"],
+            height=config["HEIGHT"],
+            left=config["LEFT2"],
+            bgcolor=main_config["BG_COLOR"]
+        )
 
 
 def main(page: ft.Page):
     page.horizontal_alignment = "center"
     page.vertical_alignment = "center"
-    page.title = "Calc App"
-    # result = ft.Text(value="CHESS CLOCK APP")
+    page.title = "Chess Clock"
+
+    view = View2()
+    main_cnt = view.get_main_container_stack()
+    # vieww = view.get_view()
+    # page.views.clear()
+    # page.views.append(
+    #     view
+    # )
     page.add(
-        body
+        main_cnt
     )
 
 

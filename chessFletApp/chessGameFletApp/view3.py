@@ -7,10 +7,14 @@ class View3(ViewApp, ft.UserControl):
 
     def __init__(
             self,
-            page
+            page,
+            loop,
+            pause_process
     ):
         super().__init__()
         self.page = page
+        self.loop = loop
+        self.pause_process = pause_process
         self.black_time = get_view_3_config()["BUTTON_BLACK"]["TIME"]
         self.white_time = get_view_3_config()["BUTTON_WHITE"]["TIME"]
 
@@ -47,6 +51,14 @@ class View3(ViewApp, ft.UserControl):
             self.black_time = time
         if button_color == "white":
             self.white_time = time
+
+    def read_timers(
+            self,
+    ):
+        return {
+            "white_time": self.white_time,
+            "black_time": self.black_time
+        }
 
     def put_button_black(
             self
@@ -101,6 +113,10 @@ class View3(ViewApp, ft.UserControl):
                 bgcolor=main_config["BG_COLOR"]
             )
 
+    async def on_pause_game(self):
+        await self.loop.create_task(self.pause_process(self.read_timers()))
+        await self.page.go_async('/view4')
+
     def put_button_pause(self):
         main_config = get_view_config()["MAIN"]
         config = get_view_3_config()["BUTTON_PAUSE"]
@@ -113,7 +129,7 @@ class View3(ViewApp, ft.UserControl):
                             icon=config["ICON"],
                             icon_color=config["COLOR"],
                             icon_size=config["SIZE"],
-                            on_click=lambda _: self.page.go('/view4')
+                            on_click=lambda _: self.loop.create_task(self.on_pause_game())
                         ),
                     ]
                 )
@@ -122,5 +138,4 @@ class View3(ViewApp, ft.UserControl):
             width=main_config["WIDTH"],
             height=config["HEIGHT"],
             bgcolor=main_config["BG_COLOR"]
-            # bgcolor="red"
         )

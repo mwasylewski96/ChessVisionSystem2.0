@@ -6,7 +6,12 @@ setup(
     package_data={
         'chessOds': ['chessCurrentGameTable.ods', 'chessInitGameTable.ods'],
         'chessTools': ['chessConfig.yaml'],
-        'chessFletApp': ['chessGameFletApp/assets/background.png'],
+        'chessFletApp': [
+            'chessGameFletApp/assets/background.png',
+            'chessGameFletApp/assets/draw.png',
+            'chessGameFletApp/assets/white_win.png',
+            'chessGameFletApp/assets/black_win.png',
+        ],
     },
     install_requires=[
         'customtkinter',

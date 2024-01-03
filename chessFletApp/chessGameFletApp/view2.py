@@ -7,10 +7,14 @@ class View2(ViewApp, ft.UserControl):
 
     def __init__(
             self,
-            page
+            page,
+            loop,
+            start_game_process
     ):
         super().__init__()
         self.page = page
+        self.loop = loop
+        self.start_game_process = start_game_process
 
     # def get_view(
     #         self
@@ -63,6 +67,10 @@ class View2(ViewApp, ft.UserControl):
             top=config["TOP"]
         )
 
+    async def on_start_game(self):
+        await self.loop.create_task(self.start_game_process())
+        await self.page.go_async('/view3')
+
     def put_button_start_game(self):
         main_config = get_view_config()["MAIN"]
         config = get_view_2_config()["BUTTON_START_GAME"]
@@ -77,7 +85,7 @@ class View2(ViewApp, ft.UserControl):
                                 bgcolor=config["BG_COLOR"],
                                 color=config["COLOR"]
                             ),
-                            on_click=lambda _: self.page.go('/view3')
+                            on_click=lambda _: self.loop.create_task(self.on_start_game())
                         )
                     ]
                 )
@@ -105,8 +113,8 @@ class View2(ViewApp, ft.UserControl):
                                 bgcolor=config["BG_COLOR"],
                                 color=config["COLOR"]
                             ),
-                            on_click=lambda _: self.page.go('/view1')
-                        ),
+                            on_click=lambda _: self.loop.create_task(self.page.go_async('/view1'))
+                        )
                     ]
                 )
             ]),

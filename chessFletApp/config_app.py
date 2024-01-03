@@ -134,6 +134,29 @@ def get_view_3_config():
 # FOR VIEW 4
 def get_view_4_config():
     return {
+        "WHITE_DRAW_BLACK_IMAGE": {
+            "SRC_WHITE": "assets/white_win.png",
+            "SRC_DRAW": "assets/draw.png",
+            "SRC_BLACK": "assets/black_win.png",
+            "TOP": 420,
+            "SRC_HEIGHT": 100,
+            "BG_COLOR": "transparent",
+            "SRC_WIDTH": 100,
+            "HEIGHT": 50
+        },
+        "SLIDER_END_GAME": {
+            "MIN": 0,
+            "MAX": 2,
+            "DIVISIONS": 2,
+            "TOP": 360,
+            "HEIGHT": 50,
+            "ACTIVE_COLOR": ft.colors.BLACK,
+            "INACTIVE_COLOR": ft.colors.WHITE,
+            "THUMB_COLOR": ft.colors.DEEP_PURPLE_200,
+            "INIT_VALUE": 1,
+            "SLIDER_WIDTH": 305,
+            "SLIDER_HEIGHT": 150
+        },
         "BUTTON_END_GAME": {
             "VALUE": "END GAME",
             "SIZE": 30,

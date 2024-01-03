@@ -7,10 +7,12 @@ class View1(ViewApp, ft.UserControl):
 
     def __init__(
             self,
-            page
+            page,
+            loop
     ):
         super().__init__()
         self.page = page
+        self.loop = loop
         self.entry_white_value = None
         self.entry_event_value = None
         self.entry_black_value = None
@@ -66,7 +68,7 @@ class View1(ViewApp, ft.UserControl):
                                 bgcolor=config_next["BG_COLOR"],
                                 color=config_next["COLOR"]
                             ),
-                            on_click=lambda _: self.page.go('/view2')
+                            on_click=lambda _: self.loop.create_task(self.page.go_async('/view2'))
                         ),
                     ]
                 )

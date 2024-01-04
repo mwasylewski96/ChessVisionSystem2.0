@@ -1,6 +1,7 @@
 import flet as ft
 from chessFletApp.config_app import get_view_config, get_view_1_config
 from chessFletApp.chessGameFletApp.view import ViewApp
+import json
 
 
 class View1(ViewApp, ft.UserControl):
@@ -8,24 +9,20 @@ class View1(ViewApp, ft.UserControl):
     def __init__(
             self,
             page,
-            loop
+            loop,
+            read_temp_data_white_event_black
     ):
         super().__init__()
         self.page = page
         self.loop = loop
+        self.read_temp_data_white_event_black = read_temp_data_white_event_black
+        self.entry_white = None
+        self.entry_black = None
+        self.entry_event = None
         self.entry_white_value = None
         self.entry_event_value = None
         self.entry_black_value = None
-
-    # def get_view(
-    #         self
-    # ):
-    #     return ft.View(
-    #         route="/view1",
-    #         controls=[
-    #             self.get_main_container_stack()
-    #         ]
-    #     )
+        self.write_temp_data_to_entries()
 
     def build(
             self
@@ -35,62 +32,114 @@ class View1(ViewApp, ft.UserControl):
                 [
                     self.put_background_image(),
                     self.put_text_chess_clock(),
-                    self.put_texts_white_event_black(),
-                    self.put_entries_white_event_black(),
-                    self.put_buttons_apply_next()
+                    self.put_texts_white_black(),
+                    self.put_text_event(),
+                    self.put_entries_white_black(),
+                    self.put_entry_event(),
+                    self.put_button_next()
                 ]
             )
         )
 
-    def put_buttons_apply_next(
+    def write_temp_data_to_entries(self):
+        self.set_entries_values(self.read_temp_data_white_event_black())
+
+    @staticmethod
+    def write_entries_to_json(
+            data
+    ):
+        with open("event_and_players_data_chess_game.json", 'w') as json_file:
+            json.dump(data, json_file)
+
+    async def on_button_next(
+            self
+    ):
+        self.write_entries_to_json(
+            self.get_entries_values()
+        )
+        await self.loop.create_task(self.page.go_async('/view2'))
+
+    def put_button_next(
             self
     ):
         main_config = get_view_config()["MAIN"]
-        config_apply_next = get_view_1_config()["BUTTONS_APPLY_NEXT"]
-        config_apply = config_apply_next["BUTTON_APPLY"]
-        config_next = config_apply_next["BUTTON_NEXT"]
+        config = get_view_1_config()["BUTTON_NEXT"]
         return ft.Container(
             ft.Column([
                 ft.Row(
-                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                    alignment=ft.MainAxisAlignment.END,
                     controls=[
                         ft.ElevatedButton(
-                            content=ft.Text(value=config_apply["VALUE"], size=config_apply["SIZE"]),
-                            style=ft.ButtonStyle(
-                                bgcolor=config_apply["BG_COLOR"],
-                                color=config_apply["COLOR"]
-                            )
-                            # on_click=lambda _: self.page.go('/view2')
-                        ),
-                        ft.ElevatedButton(
-                            content=ft.Text(value=config_next["VALUE"], size=config_next["SIZE"]),
-                            style=ft.ButtonStyle(
-                                bgcolor=config_next["BG_COLOR"],
-                                color=config_next["COLOR"]
+                            content=ft.Text(
+                                value=config["VALUE"],
+                                size=config["SIZE"]
                             ),
-                            on_click=lambda _: self.loop.create_task(self.page.go_async('/view2'))
+                            style=ft.ButtonStyle(
+                                bgcolor=config["BG_COLOR"],
+                                color=config["COLOR"]
+                            ),
+                            on_click=lambda _: self.loop.create_task(
+                               self.on_button_next()
+                            )
                         ),
                     ]
                 )
             ]),
-            top=config_apply_next["TOP"],
+            top=config["TOP"],
             width=main_config["WIDTH"],
-            height=config_apply_next["HEIGHT"],
+            height=config["HEIGHT"],
+            right=config["RIGHT"],
             bgcolor=main_config["BG_COLOR"]
         )
 
     @staticmethod
-    def put_texts_white_event_black():
+    def put_texts_white_black():
         main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["TEXTS_WHITE_EVENT_BLACK"]
+        config = get_view_1_config()["TEXTS_WHITE_BLACK"]
         return ft.Container(
             ft.Column([
                 ft.Row(
                     alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                     controls=[
-                        ft.Text(value=config["VALUE_WHITE"], size=config["SIZE"], color=config["COLOR"], italic=True, weight=config["WEIGHT"]),
-                        ft.Text(value=config["VALUE_EVENT"], size=config["SIZE"], color=config["COLOR"], italic=True, weight=config["WEIGHT"]),
-                        ft.Text(value=config["VALUE_BLACK"], size=config["SIZE"], color=config["COLOR"], italic=True, weight=config["WEIGHT"])
+                        ft.Text(
+                            value=config["VALUE_WHITE"],
+                            size=config["SIZE"],
+                            color=config["COLOR"],
+                            italic=True,
+                            weight=config["WEIGHT"]
+                        ),
+                        ft.Text(
+                            value=config["VALUE_BLACK"],
+                            size=config["SIZE"],
+                            color=config["COLOR"],
+                            italic=True,
+                            weight=config["WEIGHT"]
+                        )
+                    ]
+                ),
+            ]),
+            top=config["TOP"],
+            width=main_config["WIDTH"],
+            height=config["HEIGHT"],
+            bgcolor=main_config["BG_COLOR"]
+        )
+
+    @staticmethod
+    def put_text_event():
+        main_config = get_view_config()["MAIN"]
+        config = get_view_1_config()["TEXT_EVENT"]
+        return ft.Container(
+            ft.Column([
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                    controls=[
+                        ft.Text(
+                            value=config["VALUE"],
+                            size=config["SIZE"],
+                            color=config["COLOR"],
+                            italic=True,
+                            weight=config["WEIGHT"],
+                        ),
                     ]
                 ),
             ]),
@@ -106,21 +155,39 @@ class View1(ViewApp, ft.UserControl):
         self.entry_white_value = self.entry_white.value
         self.entry_event_value = self.entry_event.value
         self.entry_black_value = self.entry_black.value
+        return {
+            "white": self.entry_white_value,
+            "event": self.entry_event_value,
+            "black": self.entry_black_value,
+        }
 
-    def put_entries_white_event_black(
+    def set_entries_values(
+            self,
+            data
+    ):
+        self.entry_white_value = data["white"]
+        self.entry_event_value = data["event"]
+        self.entry_black_value = data["black"]
+
+    def put_entries_white_black(
             self
     ):
         main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["ENTRIES_WHITE_EVENT_BLACK"]
+        config = get_view_1_config()["ENTRIES_WHITE_BLACK"]
 
         self.entry_white = ft.TextField(
-            color=config["COLOR"], width=config["WIDTH"], bgcolor=config["BG_COLOR"]
-        )
-        self.entry_event = ft.TextField(
-            color=config["COLOR"], width=config["WIDTH"], bgcolor=config["BG_COLOR"]
+            value=self.entry_white_value,
+            color=config["COLOR"],
+            width=config["WIDTH"],
+            bgcolor=config["BG_COLOR"],
+            hint_text=config["HINT_WHITE"]
         )
         self.entry_black = ft.TextField(
-            color=config["COLOR"], width=config["WIDTH"], bgcolor=config["BG_COLOR"]
+            value=self.entry_black_value,
+            color=config["COLOR"],
+            width=config["WIDTH"],
+            bgcolor=config["BG_COLOR"],
+            hint_text=config["HINT_BLACK"]
         )
 
         return ft.Container(
@@ -129,7 +196,6 @@ class View1(ViewApp, ft.UserControl):
                     alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                     controls=[
                         self.entry_white,
-                        self.entry_event,
                         self.entry_black,
                     ]
                 )
@@ -139,3 +205,44 @@ class View1(ViewApp, ft.UserControl):
             height=config["HEIGHT"],
             bgcolor=main_config["BG_COLOR"]
         )
+
+    def put_entry_event(
+            self
+    ):
+        main_config = get_view_config()["MAIN"]
+        config = get_view_1_config()["ENTRY_EVENT"]
+
+        self.entry_event = ft.TextField(
+            value=self.entry_event_value,
+            color=config["COLOR"],
+            width=config["WIDTH"],
+            bgcolor=config["BG_COLOR"],
+            hint_text=config["HINT"]
+        )
+
+        return ft.Container(
+            ft.Column([
+                ft.Row(
+                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                    controls=[
+                        self.entry_event,
+                    ]
+                )
+            ]),
+            top=config["TOP"],
+            width=main_config["WIDTH"],
+            height=config["HEIGHT"],
+            bgcolor=main_config["BG_COLOR"]
+        )
+
+# def main(page: ft.Page):
+#     page.window_width = 450
+#     page.window_height = 770
+#
+#     page.add(
+#         View1(page=page)
+#     )
+#
+#
+# if __name__ == "__main__":
+#     ft.app(target=main)

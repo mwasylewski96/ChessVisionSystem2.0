@@ -35,40 +35,50 @@ def get_view_config():
 # FOR VIEW 1
 def get_view_1_config():
     return {
-        "BUTTONS_APPLY_NEXT": {
+        "BUTTON_NEXT": {
+            "VALUE": "NEXT",
+            "SIZE": 30,
+            "RADIUS": 10,
+            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
+            "COLOR": ft.colors.WHITE,
+            "RIGHT": 30,
             "TOP": 630,
             "HEIGHT": 50,
-            "BUTTON_APPLY": {
-                "VALUE": "APPLY",
-                "SIZE": 30,
-                "RADIUS": 10,
-                "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-                "COLOR": ft.colors.WHITE
-            },
-            "BUTTON_NEXT": {
-                "VALUE": "NEXT",
-                "SIZE": 30,
-                "RADIUS": 10,
-                "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-                "COLOR": ft.colors.WHITE
-            }
         },
-        "ENTRIES_WHITE_EVENT_BLACK": {
+        "ENTRIES_WHITE_BLACK": {
             "COLOR": ft.colors.WHITE,
-            "WIDTH": 120,
+            "WIDTH": 140,
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-            "TOP": 550,
+            "HINT_WHITE": "Insert player 1",
+            "HINT_BLACK": "Insert player 2",
+            "TOP": 300,
             "HEIGHT": 50
         },
-        "TEXTS_WHITE_EVENT_BLACK": {
+        "ENTRY_EVENT": {
+            "COLOR": ft.colors.WHITE,
+            "WIDTH": 150,
+            "HINT": "Insert event",
+            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
+            "TOP": 420,
+            "HEIGHT": 50
+        },
+        "TEXTS_WHITE_BLACK": {
             "VALUE_WHITE": "WHITE",
-            "VALUE_EVENT": "EVENT",
             "VALUE_BLACK": "BLACK",
             "SIZE": 30,
             "COLOR": ft.colors.WHITE,
             "WEIGHT": ft.FontWeight.W_500,
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-            "TOP": 500,
+            "TOP": 250,
+            "HEIGHT": 50
+        },
+        "TEXT_EVENT": {
+            "VALUE": "EVENT",
+            "SIZE": 30,
+            "COLOR": ft.colors.WHITE,
+            "WEIGHT": ft.FontWeight.W_500,
+            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
+            "TOP": 370,
             "HEIGHT": 50
         }
     }

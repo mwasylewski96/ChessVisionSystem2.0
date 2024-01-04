@@ -37,6 +37,7 @@ class ChessFletApp:
         async def on_end_chess_game_chess_flet_app_response(response):
             print(f"Received: {response} on {self.chess_game_namespace} namespace.")
 
+        self.write_init_clean_entries_to_json()
         self.loop.run_until_complete(self.start_server())
 
     async def start_server(self):
@@ -55,6 +56,16 @@ class ChessFletApp:
         #     namespace=self.chess_game_namespace
         # )
         print("STARTED GAME")
+
+    @staticmethod
+    def write_init_clean_entries_to_json():
+        data = {
+            "white": "",
+            "event": "",
+            "black": ""
+        }
+        with open("event_and_players_data_chess_game.json", 'w') as json_file:
+            json.dump(data, json_file)
 
     @staticmethod
     def read_event_and_players_data_chess_game():
@@ -140,7 +151,8 @@ class ChessFletApp:
                     loop=self.loop,
                     start_game_process=self.start_chess_game,
                     pause_process=self.pause_game,
-                    end_game_process=self.end_chess_game
+                    end_game_process=self.end_chess_game,
+                    read_temp_data_white_event_black=self.read_event_and_players_data_chess_game
                 )[page.route]
             )
         page.on_route_change = route_change

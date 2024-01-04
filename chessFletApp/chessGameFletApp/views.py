@@ -10,13 +10,14 @@ def view_handler(
         loop,
         start_game_process,
         pause_process,
-        end_game_process
+        end_game_process,
+        read_temp_data_white_event_black
 ):
     return {
         "/view1": ft.View(
             route="/view1",
             controls=[
-                View1(page, loop)
+                View1(page, loop, read_temp_data_white_event_black)
             ]
         ),
         "/view2": ft.View(

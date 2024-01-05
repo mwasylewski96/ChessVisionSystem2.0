@@ -168,50 +168,65 @@ def get_view_3_config():
 # FOR VIEW 4
 def get_view_4_config():
     return {
-        "WHITE_DRAW_BLACK_IMAGE": {
-            "SRC_WHITE": "assets/white_win.png",
-            "SRC_DRAW": "assets/draw.png",
-            "SRC_BLACK": "assets/black_win.png",
-            "TOP": 420,
-            "SRC_HEIGHT": 100,
-            "BG_COLOR": "transparent",
-            "SRC_WIDTH": 100,
-            "HEIGHT": 50
-        },
-        "SLIDER_END_GAME": {
-            "MIN": 0,
-            "MAX": 2,
-            "DIVISIONS": 2,
-            "TOP": 360,
-            "HEIGHT": 50,
-            "ACTIVE_COLOR": ft.colors.BLACK,
-            "INACTIVE_COLOR": ft.colors.WHITE,
-            "THUMB_COLOR": ft.colors.DEEP_PURPLE_200,
-            "INIT_VALUE": 1,
-            "SLIDER_WIDTH": 305,
-            "SLIDER_HEIGHT": 150
-        },
-        "BUTTON_END_GAME": {
-            "VALUE": "END GAME",
+        "BUTTON_QUIT": {
+            "VALUE": "QUIT",
             "SIZE": 30,
             "COLOR": ft.colors.WHITE,
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-            "TOP": 300,
+            "TOP": 530,
             "HEIGHT": 50,
         },
-        "BUTTONS_BACK_START_NEW_GAME": {
-            "TOP": 630,
+        "BUTTON_RESUME": {
+            "VALUE": "RESUME",
+            "SIZE": 30,
+            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
+            "COLOR": ft.colors.WHITE,
+            "TOP": 450,
             "HEIGHT": 50,
-            "BUTTON_START_NEW_GAME": {
-                "VALUE": "START NEW GAME",
-                "SIZE": 25,
-                "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-                "COLOR": ft.colors.WHITE
-            },
-            "BUTTON_BACK": {
-                "SIZE": 25,
-                "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-                "COLOR": ft.colors.WHITE
-            }
+        }
+    }
+
+
+# FOR VIEW 5
+def get_view_5_config():
+    return {
+        "BUTTONS_WHITE_DRAW_BLACK": {
+            "SRC_WHITE": "assets/white_win.png",
+            "SRC_DRAW": "assets/draw.png",
+            "SRC_BLACK": "assets/black_win.png",
+            "TOP": 370,
+            "BG_COLOR": "transparent",
+            "WIDTH": 120,
+            "HEIGHT": 120
         },
+        "TEXT_CHOOSE_WINNER": {
+            "VALUE": "CHOOSE WINNER",
+            "SIZE": 30,
+            "COLOR": ft.colors.WHITE,
+            "WEIGHT": ft.FontWeight.W_500,
+            "HEIGHT": 50,
+            "TOP": 300
+        }
+    }
+
+
+# FOR VIEW 6
+def get_view_6_config():
+    return {
+        "TEXT_CONGRATULATIONS": {
+            "VALUE": "CONGRATULATIONS!",
+            "SIZE": 30,
+            "COLOR": ft.colors.WHITE,
+            "WEIGHT": ft.FontWeight.W_500,
+            "HEIGHT": 50,
+            "TOP": 300
+        },
+        "BUTTON_MENU": {
+            "VALUE": "MENU",
+            "SIZE": 30,
+            "COLOR": ft.colors.WHITE,
+            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
+            "TOP": 430,
+            "HEIGHT": 50,
+        }
     }

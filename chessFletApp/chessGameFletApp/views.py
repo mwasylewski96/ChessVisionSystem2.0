@@ -3,6 +3,8 @@ from chessFletApp.chessGameFletApp.view1 import View1
 from chessFletApp.chessGameFletApp.view2 import View2
 from chessFletApp.chessGameFletApp.view3 import View3
 from chessFletApp.chessGameFletApp.view4 import View4
+from chessFletApp.chessGameFletApp.view5 import View5
+from chessFletApp.chessGameFletApp.view6 import View6
 
 
 def view_handler(
@@ -18,6 +20,8 @@ def view_handler(
     view_2 = "/view2"
     view_3 = "/view3"
     view_4 = "/view4"
+    view_5 = "/view5"
+    view_6 = "/view6"
 
     view_to_return = page.route
 
@@ -59,47 +63,30 @@ def view_handler(
         return ft.View(
             route=view_to_return,
             controls=[
-                View4(page, loop, end_chess_game)
+                View4(
+                    page=page,
+                    loop=loop
+                )
             ]
         )
-
-
-    # return {
-    #     view_1: ft.View(
-    #         route=view_1,
-    #         controls=[
-    #             View1(
-    #                 page=page,
-    #                 loop=loop
-    #             )
-    #         ]
-    #     ),
-    #     view_2: ft.View(
-    #         route=view_2,
-    #         controls=[
-    #             View2(
-    #                 page=page,
-    #                 loop=loop,
-    #                 start_chess_game=start_chess_game,
-    #                 write_event_and_players_data_chess_game=write_event_and_players_data_chess_game
-    #             )
-    #         ]
-    #     ),
-    #     view_3: ft.View(
-    #         route=view_3,
-    #         controls=[
-    #             View3(
-    #                 page=page,
-    #                 loop=loop,
-    #                 execute_procedure_of_move_white=execute_procedure_of_move_white,
-    #                 execute_procedure_of_move_black=execute_procedure_of_move_black,
-    #             )
-    #         ]
-    #     ),
-    #     view_4: ft.View(
-    #         route=view_4,
-    #         controls=[
-    #             View4(page, loop, end_chess_game)
-    #         ]
-    #     )
-    # }
+    elif view_to_return == view_5:
+        return ft.View(
+            route=view_to_return,
+            controls=[
+                View5(
+                    page=page,
+                    loop=loop,
+                    end_chess_game=end_chess_game
+                )
+            ]
+        )
+    elif view_to_return == view_6:
+        return ft.View(
+            route=view_to_return,
+            controls=[
+                View6(
+                    page=page,
+                    loop=loop
+                )
+            ]
+        )

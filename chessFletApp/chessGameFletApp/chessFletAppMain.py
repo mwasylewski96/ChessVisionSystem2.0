@@ -42,9 +42,20 @@ class ChessFletApp:
         async def on_end_chess_game_chess_flet_app_response(response):
             print(f"Received: {response} on {self.chess_game_namespace} namespace.")
 
+        self.write_init_clean_button_states_to_json()
         self.write_init_clean_entries_to_json()
         self.write_init_clean_timers_to_json()
         self.loop.run_until_complete(self.start_server())
+
+    @staticmethod
+    def write_init_clean_button_states_to_json():
+        config = get_view_3_config()
+        data = {
+            "white_state": False,
+            "black_state": True,
+        }
+        with open(config["PATH"]["BUTTONS"], 'w') as json_file:
+            json.dump(data, json_file)
 
     @staticmethod
     def write_init_clean_entries_to_json():
@@ -64,7 +75,7 @@ class ChessFletApp:
             "white_time": config["BUTTON_WHITE"]["TIME"],
             "black_time": config["BUTTON_BLACK"]["TIME"]
         }
-        with open(config["PATH"], 'w') as json_file:
+        with open(config["PATH"]["TIMERS"], 'w') as json_file:
             json.dump(data, json_file)
 
     async def start_server(
@@ -148,8 +159,6 @@ class ChessFletApp:
         page.window_height = 770
 
         async def route_change(route):
-            print("View: ", page.route)
-
             page.views.clear()
             page.views.append(
                 view_handler(
@@ -160,7 +169,7 @@ class ChessFletApp:
                     execute_procedure_of_move_white=self.execute_procedure_of_move_white,
                     execute_procedure_of_move_black=self.execute_procedure_of_move_black,
                     end_chess_game=self.end_chess_game,
-                )[page.route]
+                )
             )
         page.on_route_change = route_change
         await page.go_async("/view1")

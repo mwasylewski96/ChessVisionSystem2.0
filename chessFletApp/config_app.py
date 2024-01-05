@@ -115,10 +115,17 @@ def get_view_3_config():
                 "MIN": 5,
                 "SEC": 0
             },
+            "WIDTH": 380,
             "SIZE": 130,
             "RADIUS": 10,
-            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-            "COLOR": ft.colors.WHITE,
+            "BG_COLOR": {
+                "DISABLED": ft.colors.DEEP_PURPLE_100,
+                "DEFAULT": ft.colors.DEEP_PURPLE_200
+            },
+            "COLOR": {
+                "DISABLED": ft.colors.WHITE,
+                "DEFAULT": ft.colors.WHITE
+            },
             "TOP": 80,
             "HEIGHT": 180,
             "ROTATE": 3.14
@@ -128,10 +135,17 @@ def get_view_3_config():
                 "MIN": 5,
                 "SEC": 0
             },
+            "WIDTH": 380,
             "SIZE": 130,
             "RADIUS": 10,
-            "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-            "COLOR": ft.colors.WHITE,
+            "BG_COLOR": {
+                "DISABLED": ft.colors.DEEP_PURPLE_100,
+                "DEFAULT": ft.colors.DEEP_PURPLE_200
+            },
+            "COLOR": {
+                "DISABLED": ft.colors.WHITE,
+                "DEFAULT": ft.colors.WHITE
+            },
             "BOTTOM": 80,
             "HEIGHT": 180,
         },
@@ -144,7 +158,10 @@ def get_view_3_config():
             "TOP": 300,
             "HEIGHT": 100,
         },
-        "PATH": "state_of_timers.json"
+        "PATH": {
+            "TIMERS": "state_of_timers.json",
+            "BUTTONS": "state_of_buttons.json"
+        }
     }
 
 

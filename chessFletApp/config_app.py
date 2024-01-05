@@ -9,7 +9,6 @@ def get_view_config():
             "WIDTH": 411,
             "HEIGHT": 700,
             "BG_COLOR": "transparent",
-            # "IMG_SRC": main_chess_vision_system_20_path + "/chessFletApp/chessGameFletApp/assets/background.png"
             "IMG_SRC": "assets/background.png"
         },
         "TEXT_CHESS_CLOCK": {
@@ -28,7 +27,7 @@ def get_view_config():
             "TOP": 630,
             "HEIGHT": 50,
             "LEFT2": 30
-        },
+        }
     }
 
 
@@ -80,7 +79,8 @@ def get_view_1_config():
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
             "TOP": 370,
             "HEIGHT": 50
-        }
+        },
+        "PATH": "event_and_players_data_chess_game.json"
     }
 
 
@@ -111,22 +111,28 @@ def get_view_2_config():
 def get_view_3_config():
     return {
         "BUTTON_BLACK": {
-            "TIME": "05:00",
+            "TIME": {
+                "MIN": 5,
+                "SEC": 0
+            },
             "SIZE": 130,
             "RADIUS": 10,
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
             "COLOR": ft.colors.WHITE,
-            "TOP": 100,
+            "TOP": 80,
             "HEIGHT": 180,
             "ROTATE": 3.14
         },
         "BUTTON_WHITE": {
-            "TIME": "05:00",
+            "TIME": {
+                "MIN": 5,
+                "SEC": 0
+            },
             "SIZE": 130,
             "RADIUS": 10,
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
             "COLOR": ft.colors.WHITE,
-            "BOTTOM": 100,
+            "BOTTOM": 80,
             "HEIGHT": 180,
         },
         "BUTTON_PAUSE": {
@@ -137,7 +143,8 @@ def get_view_3_config():
             "BG_COLOR": ft.colors.DEEP_PURPLE_200,
             "TOP": 300,
             "HEIGHT": 100,
-        }
+        },
+        "PATH": "state_of_timers.json"
     }
 
 

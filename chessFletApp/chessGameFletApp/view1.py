@@ -9,20 +9,18 @@ class View1(ViewApp, ft.UserControl):
     def __init__(
             self,
             page,
-            loop,
-            read_temp_data_white_event_black
+            loop
     ):
         super().__init__()
         self.page = page
         self.loop = loop
-        self.read_temp_data_white_event_black = read_temp_data_white_event_black
         self.entry_white = None
         self.entry_black = None
         self.entry_event = None
         self.entry_white_value = None
         self.entry_event_value = None
         self.entry_black_value = None
-        self.write_temp_data_to_entries()
+        self.set_last_saved_temp_data_to_entries()
 
     def build(
             self
@@ -41,15 +39,27 @@ class View1(ViewApp, ft.UserControl):
             )
         )
 
-    def write_temp_data_to_entries(self):
-        self.set_entries_values(self.read_temp_data_white_event_black())
+    def set_last_saved_temp_data_to_entries(
+            self
+    ):
+        self.set_entries_values(
+            self.read_event_and_players_data_chess_game()
+        )
 
     @staticmethod
-    def write_entries_to_json(
+    def read_event_and_players_data_chess_game():
+        config = get_view_1_config()
+        with open(config["PATH"], "r") as file:
+            data = json.load(file)
+        return data
+
+    def set_entries_values(
+            self,
             data
     ):
-        with open("event_and_players_data_chess_game.json", 'w') as json_file:
-            json.dump(data, json_file)
+        self.entry_white_value = data["white"]
+        self.entry_event_value = data["event"]
+        self.entry_black_value = data["black"]
 
     async def on_button_next(
             self
@@ -58,6 +68,26 @@ class View1(ViewApp, ft.UserControl):
             self.get_entries_values()
         )
         await self.loop.create_task(self.page.go_async('/view2'))
+
+    def get_entries_values(
+            self
+    ):
+        self.entry_white_value = self.entry_white.value
+        self.entry_event_value = self.entry_event.value
+        self.entry_black_value = self.entry_black.value
+        return {
+            "white": self.entry_white_value,
+            "event": self.entry_event_value,
+            "black": self.entry_black_value,
+        }
+
+    @staticmethod
+    def write_entries_to_json(
+            data
+    ):
+        config = get_view_1_config()
+        with open(config["PATH"], 'w') as json_file:
+            json.dump(data, json_file)
 
     def put_button_next(
             self
@@ -148,26 +178,6 @@ class View1(ViewApp, ft.UserControl):
             height=config["HEIGHT"],
             bgcolor=main_config["BG_COLOR"]
         )
-
-    def get_entries_values(
-            self
-    ):
-        self.entry_white_value = self.entry_white.value
-        self.entry_event_value = self.entry_event.value
-        self.entry_black_value = self.entry_black.value
-        return {
-            "white": self.entry_white_value,
-            "event": self.entry_event_value,
-            "black": self.entry_black_value,
-        }
-
-    def set_entries_values(
-            self,
-            data
-    ):
-        self.entry_white_value = data["white"]
-        self.entry_event_value = data["event"]
-        self.entry_black_value = data["black"]
 
     def put_entries_white_black(
             self

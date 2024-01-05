@@ -4,6 +4,7 @@ import json
 import flet as ft
 import socketio
 from views import view_handler
+from chessFletApp.config_app import get_view_1_config, get_view_3_config
 
 
 class ChessFletApp:
@@ -11,7 +12,7 @@ class ChessFletApp:
     def __init__(
             self
     ):
-        print("Initializing GUI client...")
+        print("Initializing Chess Flet App client...")
 
         self.sio = socketio.AsyncClient()
         self.chess_game_namespace = "/chess_game"
@@ -24,10 +25,14 @@ class ChessFletApp:
         @self.sio.on(f'start_chess_game_chess_flet_app_response', namespace=self.chess_game_namespace)
         async def on_start_chess_game_chess_flet_app_response(response):
             print(f"Received: {response} on `{self.chess_game_namespace}` namespace.")
+            if response["success"]:
+                print("STARTED GAME")
 
         @self.sio.on('write_event_and_players_data_chess_game_local_gui_response', namespace=self.chess_game_namespace)
         async def on_write_event_and_players_data_chess_game_chess_flet_app_response(response):
             print(f"Received: {response} on {self.chess_game_namespace} namespace.")
+            if response["success"]:
+                print("DATA SAVED IN GAME")
 
         @self.sio.on('execute_procedure_of_move_chess_flet_app_response', namespace=self.chess_game_namespace)
         async def on_execute_procedure_of_move_chess_flet_app_response(response):
@@ -38,9 +43,33 @@ class ChessFletApp:
             print(f"Received: {response} on {self.chess_game_namespace} namespace.")
 
         self.write_init_clean_entries_to_json()
+        self.write_init_clean_timers_to_json()
         self.loop.run_until_complete(self.start_server())
 
-    async def start_server(self):
+    @staticmethod
+    def write_init_clean_entries_to_json():
+        config = get_view_1_config()
+        data = {
+            "white": "",
+            "event": "",
+            "black": ""
+        }
+        with open(config["PATH"], 'w') as json_file:
+            json.dump(data, json_file)
+
+    @staticmethod
+    def write_init_clean_timers_to_json():
+        config = get_view_3_config()
+        data = {
+            "white_time": config["BUTTON_WHITE"]["TIME"],
+            "black_time": config["BUTTON_BLACK"]["TIME"]
+        }
+        with open(config["PATH"], 'w') as json_file:
+            json.dump(data, json_file)
+
+    async def start_server(
+            self
+    ):
         print("Starting server...")
         # await self.sio.connect(
         #     "http://127.0.0.1:8080",
@@ -55,39 +84,23 @@ class ChessFletApp:
         #     "start_chess_game",
         #     namespace=self.chess_game_namespace
         # )
-        print("STARTED GAME")
-
-    @staticmethod
-    def write_init_clean_entries_to_json():
-        data = {
-            "white": "",
-            "event": "",
-            "black": ""
-        }
-        with open("event_and_players_data_chess_game.json", 'w') as json_file:
-            json.dump(data, json_file)
-
-    @staticmethod
-    def read_event_and_players_data_chess_game():
-        with open("event_and_players_data_chess_game.json", "r") as file:
-            data = json.load(file)
-        return data
 
     async def write_event_and_players_data_chess_game(
-            self
+            self,
+            data
     ):
-        data = self.read_event_and_players_data_chess_game()
         data_to_send = {
             "event": data["event"],
             "white_player": data["white"],
             "black_player": data["black"]
         }
         print(f"Emitting `write_event_and_players_data_chess_game` on namespace: `{self.chess_game_namespace}`")
-        await self.sio.emit(
-            "write_event_and_players_data_chess_game",
-            data=data_to_send,
-            namespace=self.chess_game_namespace
-        )
+        # await self.sio.emit(
+        #     "write_event_and_players_data_chess_game",
+        #     data=data_to_send,
+        #     namespace=self.chess_game_namespace
+        # )
+        print(f"SENDING: {data_to_send}")
 
     async def execute_procedure_of_move_white(
             self
@@ -115,13 +128,6 @@ class ChessFletApp:
             namespace=self.chess_game_namespace
         )
 
-    async def pause_game(
-            self,
-            state_of_timers
-    ):
-        with open("state_of_timers.json", 'w') as json_file:
-            json.dump(state_of_timers, json_file)
-
     async def end_chess_game(
             self,
             result
@@ -142,17 +148,18 @@ class ChessFletApp:
         page.window_height = 770
 
         async def route_change(route):
-            print(type(page.route))
+            print("View: ", page.route)
 
             page.views.clear()
             page.views.append(
                 view_handler(
                     page=page,
                     loop=self.loop,
-                    start_game_process=self.start_chess_game,
-                    pause_process=self.pause_game,
-                    end_game_process=self.end_chess_game,
-                    read_temp_data_white_event_black=self.read_event_and_players_data_chess_game
+                    start_chess_game=self.start_chess_game,
+                    write_event_and_players_data_chess_game=self.write_event_and_players_data_chess_game,
+                    execute_procedure_of_move_white=self.execute_procedure_of_move_white,
+                    execute_procedure_of_move_black=self.execute_procedure_of_move_black,
+                    end_chess_game=self.end_chess_game,
                 )[page.route]
             )
         page.on_route_change = route_change

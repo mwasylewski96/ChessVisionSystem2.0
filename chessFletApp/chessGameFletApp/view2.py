@@ -1,5 +1,6 @@
 import flet as ft
-from chessFletApp.config_app import get_view_config, get_view_2_config
+import json
+from chessFletApp.config_app import get_view_config, get_view_1_config, get_view_2_config
 from chessFletApp.chessGameFletApp.view import ViewApp
 
 
@@ -9,22 +10,14 @@ class View2(ViewApp, ft.UserControl):
             self,
             page,
             loop,
-            start_game_process
+            start_chess_game,
+            write_event_and_players_data_chess_game
     ):
         super().__init__()
         self.page = page
         self.loop = loop
-        self.start_game_process = start_game_process
-
-    # def get_view(
-    #         self
-    # ):
-    #     return ft.View(
-    #         route="/view2",
-    #         controls=[
-    #             self.get_main_container_stack()
-    #         ]
-    #     )
+        self.start_chess_game = start_chess_game
+        self.write_event_and_players_data_chess_game = write_event_and_players_data_chess_game
 
     def build(
             self
@@ -68,8 +61,20 @@ class View2(ViewApp, ft.UserControl):
         )
 
     async def on_start_game(self):
-        await self.loop.create_task(self.start_game_process())
+        await self.loop.create_task(self.start_chess_game())
+        await self.loop.create_task(
+            self.write_event_and_players_data_chess_game(
+                self.read_event_and_players_data_chess_game()
+            )
+        )
         await self.page.go_async('/view3')
+
+    @staticmethod
+    def read_event_and_players_data_chess_game():
+        config = get_view_1_config()
+        with open(config["PATH"], "r") as file:
+            data = json.load(file)
+        return data
 
     def put_button_start_game(self):
         main_config = get_view_config()["MAIN"]
@@ -80,7 +85,10 @@ class View2(ViewApp, ft.UserControl):
                     alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                     controls=[
                         ft.ElevatedButton(
-                            content=ft.Text(value=config["VALUE"], size=config["SIZE"]),
+                            content=ft.Text(
+                                value=config["VALUE"],
+                                size=config["SIZE"]
+                            ),
                             style=ft.ButtonStyle(
                                 bgcolor=config["BG_COLOR"],
                                 color=config["COLOR"]

@@ -8,34 +8,52 @@ from chessFletApp.chessGameFletApp.view4 import View4
 def view_handler(
         page,
         loop,
-        start_game_process,
-        pause_process,
-        end_game_process,
-        read_temp_data_white_event_black
+        start_chess_game,
+        write_event_and_players_data_chess_game,
+        execute_procedure_of_move_white,
+        execute_procedure_of_move_black,
+        end_chess_game
 ):
+    view_1 = "/view1"
+    view_2 = "/view2"
+    view_3 = "/view3"
+    view_4 = "/view4"
     return {
-        "/view1": ft.View(
-            route="/view1",
+        view_1: ft.View(
+            route=view_1,
             controls=[
-                View1(page, loop, read_temp_data_white_event_black)
+                View1(
+                    page=page,
+                    loop=loop
+                )
             ]
         ),
-        "/view2": ft.View(
-            route="/view2",
+        view_2: ft.View(
+            route=view_2,
             controls=[
-                View2(page, loop, start_game_process)
+                View2(
+                    page=page,
+                    loop=loop,
+                    start_chess_game=start_chess_game,
+                    write_event_and_players_data_chess_game=write_event_and_players_data_chess_game
+                )
             ]
         ),
-        "/view3": ft.View(
-            route="/view3",
+        view_3: ft.View(
+            route=view_3,
             controls=[
-                View3(page, loop, pause_process)
+                View3(
+                    page=page,
+                    loop=loop,
+                    execute_procedure_of_move_white=execute_procedure_of_move_white,
+                    execute_procedure_of_move_black=execute_procedure_of_move_black,
+                )
             ]
         ),
-        "/view4": ft.View(
-            route="/view4",
+        view_4: ft.View(
+            route=view_4,
             controls=[
-                View4(page, loop, end_game_process)
+                View4(page, loop, end_chess_game)
             ]
         )
     }

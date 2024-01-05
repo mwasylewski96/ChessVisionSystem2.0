@@ -9,12 +9,12 @@ class View4(ViewApp, ft.UserControl):
             self,
             page,
             loop,
-            end_game_process
+            end_chess_game
     ):
         super().__init__()
         self.page = page
         self.loop = loop
-        self.end_game_process = end_game_process
+        self.end_chess_game = end_chess_game
         self.slider_end_game = None
 
     def build(
@@ -59,7 +59,7 @@ class View4(ViewApp, ft.UserControl):
         )
 
     async def on_end_game_event(self):
-        await self.end_game_process(self.get_slider_value())
+        await self.end_chess_game(self.get_slider_value())
 
     def put_buttons_back_start_new_game(self):
         main_config = get_view_config()["MAIN"]
@@ -79,7 +79,7 @@ class View4(ViewApp, ft.UserControl):
                                 bgcolor=config["BUTTON_BACK"]["BG_COLOR"],
                                 color=config["BUTTON_BACK"]["COLOR"]
                             ),
-                            on_click=lambda _: self.page.go('/view3')
+                            on_click=lambda _: self.loop.create_task(self.page.go_async('/view3'))
                         ),
                         ft.ElevatedButton(
                             content=ft.Text(
@@ -167,14 +167,14 @@ class View4(ViewApp, ft.UserControl):
         )
 
 
-def main(page: ft.Page):
-    page.window_width = 450
-    page.window_height = 770
-
-    page.add(
-        View4(page=page)
-    )
-
-
-if __name__ == "__main__":
-    ft.app(target=main)
+# def main(page: ft.Page):
+#     page.window_width = 450
+#     page.window_height = 770
+#
+#     page.add(
+#         View4(page=page)
+#     )
+#
+#
+# if __name__ == "__main__":
+#     ft.app(target=main)

@@ -1,9 +1,8 @@
-from abc import ABC, abstractmethod
 from chessFletApp.config_app import get_view_config
 import flet as ft
 
 
-class ViewApp(ABC):
+class ViewApp:
 
     @staticmethod
     def put_background_image():

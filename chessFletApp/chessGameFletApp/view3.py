@@ -21,6 +21,8 @@ class View3(ViewApp, ft.UserControl):
         super().__init__()
         self.page = page
         self.loop = loop
+        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
+
         self.execute_procedure_of_move_white = execute_procedure_of_move_white
         self.execute_procedure_of_move_black = execute_procedure_of_move_black
 
@@ -204,6 +206,8 @@ class View3(ViewApp, ft.UserControl):
         self.asyncio_task_black_event.clear()
         self.asyncio_task_white_event.set()
         self.button_black.disabled = False
+        if not self.develop_mode:
+            await self.loop.create_task(self.execute_procedure_of_move_white())
         await self.run_white_asyncio_task()
         # code with emitting move black to server
 
@@ -214,6 +218,8 @@ class View3(ViewApp, ft.UserControl):
         self.asyncio_task_white_event.clear()
         self.asyncio_task_black_event.set()
         self.button_white.disabled = False
+        if not self.develop_mode:
+            await self.loop.create_task(self.execute_procedure_of_move_black())
         await self.run_black_asyncio_task()
         self.asyncio_task_black = None
         # code with emitting move black to server

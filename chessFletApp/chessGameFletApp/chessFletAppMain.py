@@ -4,7 +4,7 @@ import json
 import flet as ft
 import socketio
 from views import view_handler
-from chessFletApp.config_app import get_view_1_config, get_view_3_config
+from chessFletApp.config_app import get_view_config, get_view_1_config, get_view_3_config
 
 
 class ChessFletApp:
@@ -17,6 +17,7 @@ class ChessFletApp:
         self.sio = socketio.AsyncClient()
         self.chess_game_namespace = "/chess_game"
         self.loop = asyncio.get_event_loop()
+        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
 
         @self.sio.on('connect', namespace=self.chess_game_namespace)
         async def on_chess_game_namespace_connect():
@@ -82,19 +83,21 @@ class ChessFletApp:
             self
     ):
         print("Starting server...")
-        # await self.sio.connect(
-        #     "http://127.0.0.1:8080",
-        #     namespaces=[self.chess_game_namespace]
-        # )
+        if not self.develop_mode:
+            await self.sio.connect(
+                "http://127.0.0.1:8080",
+                namespaces=[self.chess_game_namespace]
+            )
 
     async def start_chess_game(
             self
     ):
         print(f"Emitting `start_chess_game` on namespace: `{self.chess_game_namespace}`")
-        # await self.sio.emit(
-        #     "start_chess_game",
-        #     namespace=self.chess_game_namespace
-        # )
+        if not self.develop_mode:
+            await self.sio.emit(
+                "start_chess_game",
+                namespace=self.chess_game_namespace
+            )
 
     async def write_event_and_players_data_chess_game(
             self,
@@ -106,11 +109,12 @@ class ChessFletApp:
             "black_player": data["black"]
         }
         print(f"Emitting `write_event_and_players_data_chess_game` on namespace: `{self.chess_game_namespace}`")
-        # await self.sio.emit(
-        #     "write_event_and_players_data_chess_game",
-        #     data=data_to_send,
-        #     namespace=self.chess_game_namespace
-        # )
+        if not self.develop_mode:
+            await self.sio.emit(
+                "write_event_and_players_data_chess_game",
+                data=data_to_send,
+                namespace=self.chess_game_namespace
+            )
         print(f"SENDING: {data_to_send}")
 
     async def execute_procedure_of_move_white(
@@ -120,11 +124,12 @@ class ChessFletApp:
             "color": "white"
         }
         print(f"Emitting `execute_procedure_of_move` on namespace: `{self.chess_game_namespace}`")
-        await self.sio.emit(
-            "execute_procedure_of_move",
-            data=data_to_send,
-            namespace=self.chess_game_namespace
-        )
+        if not self.develop_mode:
+            await self.sio.emit(
+                "execute_procedure_of_move",
+                data=data_to_send,
+                namespace=self.chess_game_namespace
+            )
 
     async def execute_procedure_of_move_black(
             self
@@ -133,11 +138,12 @@ class ChessFletApp:
             "color": "black"
         }
         print(f"Emitting `execute_procedure_of_move` on namespace: `{self.chess_game_namespace}`")
-        await self.sio.emit(
-            "execute_procedure_of_move",
-            data=data_to_send,
-            namespace=self.chess_game_namespace
-        )
+        if not self.develop_mode:
+            await self.sio.emit(
+                "execute_procedure_of_move",
+                data=data_to_send,
+                namespace=self.chess_game_namespace
+            )
 
     async def end_chess_game(
             self,
@@ -147,11 +153,12 @@ class ChessFletApp:
             "result_of_game": result
         }
         print(f"Emitting `end_chess_game` on namespace: `{self.chess_game_namespace}`")
-        # await self.sio.emit(
-        #     "end_chess_game",
-        #     data=data_to_send,
-        #     namespace=self.chess_game_namespace
-        # )
+        if not self.develop_mode:
+            await self.sio.emit(
+                "end_chess_game",
+                data=data_to_send,
+                namespace=self.chess_game_namespace
+            )
         print(f"SEND {data_to_send}")
 
     async def main(self, page: ft.Page):

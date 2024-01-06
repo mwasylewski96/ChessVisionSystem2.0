@@ -6,6 +6,7 @@ from chessTools.chessConfig import main_chess_vision_system_20_path
 def get_view_config():
     return {
         "MAIN": {
+            "DEVELOP_MODE": False,
             "WIDTH": 411,
             "HEIGHT": 700,
             "BG_COLOR": "transparent",

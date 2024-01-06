@@ -14,6 +14,7 @@ class View5(ViewApp, ft.UserControl):
         super().__init__()
         self.page = page
         self.loop = loop
+        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
         self.end_chess_game = end_chess_game
 
         self.button_white_win = None
@@ -64,31 +65,34 @@ class View5(ViewApp, ft.UserControl):
     async def on_button_white_win(
             self
     ):
-        # await self.loop.create_task(
-        #     self.end_chess_game(
-        #         result="1-0"
-        #     )
-        # )
+        if not self.develop_mode:
+            await self.loop.create_task(
+                self.end_chess_game(
+                    result="1-0"
+                )
+            )
         await self.page.go_async('/view6')
 
     async def on_button_draw(
             self
     ):
-        # await self.loop.create_task(
-        #     self.end_chess_game(
-        #         result="1/2-1/2"
-        #     )
-        # )
+        if not self.develop_mode:
+            await self.loop.create_task(
+                self.end_chess_game(
+                    result="1/2-1/2"
+                )
+            )
         await self.page.go_async('/view6')
 
     async def on_button_black_win(
             self
     ):
-        # await self.loop.create_task(
-        #     self.end_chess_game(
-        #         result="0-1"
-        #     )
-        # )
+        if not self.develop_mode:
+            await self.loop.create_task(
+                self.end_chess_game(
+                    result="0-1"
+                )
+            )
         await self.page.go_async('/view6')
 
     def put_buttons_wins_white_draw_black(

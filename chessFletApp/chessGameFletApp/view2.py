@@ -18,6 +18,7 @@ class View2(ViewApp, ft.UserControl):
         self.loop = loop
         self.start_chess_game = start_chess_game
         self.write_event_and_players_data_chess_game = write_event_and_players_data_chess_game
+        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
 
     def build(
             self
@@ -61,12 +62,13 @@ class View2(ViewApp, ft.UserControl):
         )
 
     async def on_start_game(self):
-        await self.loop.create_task(self.start_chess_game())
-        await self.loop.create_task(
-            self.write_event_and_players_data_chess_game(
-                self.read_event_and_players_data_chess_game()
+        if not self.develop_mode:
+            await self.loop.create_task(self.start_chess_game())
+            await self.loop.create_task(
+                self.write_event_and_players_data_chess_game(
+                    self.read_event_and_players_data_chess_game()
+                )
             )
-        )
         await self.page.go_async('/view3')
 
     @staticmethod

@@ -1,5 +1,5 @@
 import flet as ft
-from config_app import get_view_config, get_view_1_config
+from config_app import get_mode_version, get_view_config, get_view_1_config
 from view import ViewApp
 import json
 
@@ -48,7 +48,8 @@ class View1(ViewApp, ft.UserControl):
 
     @staticmethod
     def read_event_and_players_data_chess_game():
-        config = get_view_1_config()
+        mode_version = get_mode_version()
+        config = get_view_1_config()[mode_version]
         with open(config["PATH"], "r") as file:
             data = json.load(file)
         return data
@@ -85,15 +86,17 @@ class View1(ViewApp, ft.UserControl):
     def write_entries_to_json(
             data
     ):
-        config = get_view_1_config()
+        mode_version = get_mode_version()
+        config = get_view_1_config()[mode_version]
         with open(config["PATH"], 'w') as json_file:
             json.dump(data, json_file)
 
     def put_button_next(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["BUTTON_NEXT"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_1_config()[mode_version]["BUTTON_NEXT"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -124,8 +127,9 @@ class View1(ViewApp, ft.UserControl):
 
     @staticmethod
     def put_texts_white_black():
-        main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["TEXTS_WHITE_BLACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_1_config()[mode_version]["TEXTS_WHITE_BLACK"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -156,8 +160,9 @@ class View1(ViewApp, ft.UserControl):
 
     @staticmethod
     def put_text_event():
-        main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["TEXT_EVENT"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_1_config()[mode_version]["TEXT_EVENT"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -182,8 +187,9 @@ class View1(ViewApp, ft.UserControl):
     def put_entries_white_black(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["ENTRIES_WHITE_BLACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_1_config()[mode_version]["ENTRIES_WHITE_BLACK"]
 
         self.entry_white = ft.TextField(
             value=self.entry_white_value,
@@ -219,8 +225,9 @@ class View1(ViewApp, ft.UserControl):
     def put_entry_event(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_1_config()["ENTRY_EVENT"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_1_config()[mode_version]["ENTRY_EVENT"]
 
         self.entry_event = ft.TextField(
             value=self.entry_event_value,

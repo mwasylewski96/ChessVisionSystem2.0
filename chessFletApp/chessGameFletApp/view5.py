@@ -1,5 +1,5 @@
 import flet as ft
-from config_app import get_view_config, get_view_5_config
+from config_app import get_mode_version, get_view_config, get_view_5_config
 from view import ViewApp
 
 
@@ -14,7 +14,8 @@ class View5(ViewApp, ft.UserControl):
         super().__init__()
         self.page = page
         self.loop = loop
-        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
+        mode_version = get_mode_version()
+        self.develop_mode = get_view_config()[mode_version]["MAIN"]["DEVELOP_MODE"]
         self.end_chess_game = end_chess_game
 
         self.button_white_win = None
@@ -38,8 +39,9 @@ class View5(ViewApp, ft.UserControl):
 
     @staticmethod
     def put_text_choose_winner():
-        main_config = get_view_config()["MAIN"]
-        config = get_view_5_config()["TEXT_CHOOSE_WINNER"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_5_config()[mode_version]["TEXT_CHOOSE_WINNER"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -98,8 +100,9 @@ class View5(ViewApp, ft.UserControl):
     def put_buttons_wins_white_draw_black(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_5_config()["BUTTONS_WHITE_DRAW_BLACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_5_config()[mode_version]["BUTTONS_WHITE_DRAW_BLACK"]
 
         self.button_white_win = ft.TextButton(
             width=config["WIDTH"],
@@ -150,8 +153,9 @@ class View5(ViewApp, ft.UserControl):
     def put_button_back(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_config()["BUTTON_BACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_config()[mode_version]["BUTTON_BACK"]
         return ft.Container(
             ft.Column([
                 ft.Row(

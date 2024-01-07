@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 import time
 import flet as ft
-from config_app import get_view_config, get_view_3_config
+from config_app import get_mode_version, get_view_config, get_view_3_config
 from view import ViewApp
 import threading
 from typing import Literal
@@ -21,7 +21,8 @@ class View3(ViewApp, ft.UserControl):
         super().__init__()
         self.page = page
         self.loop = loop
-        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
+        mode_version = get_mode_version()
+        self.develop_mode = get_view_config()[mode_version]["MAIN"]["DEVELOP_MODE"]
 
         self.execute_procedure_of_move_white = execute_procedure_of_move_white
         self.execute_procedure_of_move_black = execute_procedure_of_move_black
@@ -48,7 +49,8 @@ class View3(ViewApp, ft.UserControl):
         self.write_current_time_on_button_timers_to_show_it()
 
     async def did_mount_async(self):
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         min_black = config["BUTTON_BLACK"]["TIME"]["MIN"]
         sec_black = config["BUTTON_BLACK"]["TIME"]["SEC"]
         min_white = config["BUTTON_WHITE"]["TIME"]["MIN"]
@@ -77,7 +79,8 @@ class View3(ViewApp, ft.UserControl):
 
     @staticmethod
     def read_current_states_saved_in_json():
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         with open(config["PATH"]["BUTTONS"], "r") as file:
             data = json.load(file)
         return data
@@ -98,7 +101,8 @@ class View3(ViewApp, ft.UserControl):
 
     @staticmethod
     def read_current_time_saved_in_json():
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         with open(config["PATH"]["TIMERS"], "r") as file:
             data = json.load(file)
         return data
@@ -241,8 +245,9 @@ class View3(ViewApp, ft.UserControl):
     def put_button_black(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_3_config()["BUTTON_BLACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_3_config()[mode_version]["BUTTON_BLACK"]
         self.button_black_control_text = ft.Text(
             value=self.black_time_to_show_on_button,
             size=config["SIZE"]
@@ -285,8 +290,9 @@ class View3(ViewApp, ft.UserControl):
     def put_button_white(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_3_config()["BUTTON_WHITE"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_3_config()[mode_version]["BUTTON_WHITE"]
         self.button_white_control_text = ft.Text(
             value=self.white_time_to_show_on_button,
             size=config["SIZE"]
@@ -330,7 +336,8 @@ class View3(ViewApp, ft.UserControl):
             state_of_timers,
             states_of_buttons
     ):
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         with open(config["PATH"]["TIMERS"], 'w') as json_file:
             json.dump(state_of_timers, json_file)
         with open(config["PATH"]["BUTTONS"], 'w') as json_file:
@@ -365,8 +372,9 @@ class View3(ViewApp, ft.UserControl):
         await self.page.go_async('/view4')
 
     def put_button_pause(self):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_3_config()["BUTTON_PAUSE"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_3_config()[mode_version]["BUTTON_PAUSE"]
         return ft.Container(
             ft.Column([
                 ft.Row(

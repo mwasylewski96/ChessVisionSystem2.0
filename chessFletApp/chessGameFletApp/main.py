@@ -3,7 +3,7 @@ import json
 import flet as ft
 import socketio
 from views import view_handler
-from config_app import get_view_config, get_view_1_config, get_view_3_config
+from config_app import get_mode_version, get_view_config, get_view_1_config, get_view_3_config
 
 
 class ChessFletApp:
@@ -16,7 +16,8 @@ class ChessFletApp:
         self.sio = socketio.AsyncClient()
         self.chess_game_namespace = "/chess_game"
         self.loop = asyncio.get_event_loop()
-        self.config = get_view_config()["MAIN"]
+        self.mode_version = get_mode_version()
+        self.config = get_view_config()[f'{self.mode_version}']["MAIN"]
         self.develop_mode = self.config["DEVELOP_MODE"]
 
         @self.sio.on('connect', namespace=self.chess_game_namespace)
@@ -48,9 +49,10 @@ class ChessFletApp:
         self.write_init_clean_timers_to_json()
         self.loop.run_until_complete(self.start_server())
 
-    @staticmethod
-    def write_init_clean_button_states_to_json():
-        config = get_view_3_config()
+    def write_init_clean_button_states_to_json(
+            self
+    ):
+        config = get_view_3_config()[f'{self.mode_version}']
         data = {
             "white_state": False,
             "black_state": True,
@@ -58,9 +60,10 @@ class ChessFletApp:
         with open(config["PATH"]["BUTTONS"], 'w') as json_file:
             json.dump(data, json_file)
 
-    @staticmethod
-    def write_init_clean_entries_to_json():
-        config = get_view_1_config()
+    def write_init_clean_entries_to_json(
+            self
+    ):
+        config = get_view_1_config()[f'{self.mode_version}']
         data = {
             "white": "",
             "event": "",
@@ -69,9 +72,10 @@ class ChessFletApp:
         with open(config["PATH"], 'w') as json_file:
             json.dump(data, json_file)
 
-    @staticmethod
-    def write_init_clean_timers_to_json():
-        config = get_view_3_config()
+    def write_init_clean_timers_to_json(
+            self
+    ):
+        config = get_view_3_config()[f'{self.mode_version}']
         data = {
             "white_time": config["BUTTON_WHITE"]["TIME"],
             "black_time": config["BUTTON_BLACK"]["TIME"]

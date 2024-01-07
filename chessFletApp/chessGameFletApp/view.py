@@ -1,4 +1,4 @@
-from config_app import get_view_config
+from config_app import get_mode_version, get_view_config
 import flet as ft
 
 
@@ -6,7 +6,8 @@ class ViewApp:
 
     @staticmethod
     def put_background_image():
-        main_config = get_view_config()["MAIN"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
         return ft.Image(
                 src=main_config["IMG_SRC"],
                 width=main_config["WIDTH"],
@@ -15,7 +16,8 @@ class ViewApp:
 
     @staticmethod
     def put_text_chess_clock():
-        config = get_view_config()
+        mode_version = get_mode_version()
+        config = get_view_config()[mode_version]
         return ft.Container(
                 ft.Column([
                     ft.Row(

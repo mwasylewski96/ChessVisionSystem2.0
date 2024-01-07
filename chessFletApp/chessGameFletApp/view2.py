@@ -1,6 +1,6 @@
 import flet as ft
 import json
-from config_app import get_view_config, get_view_1_config, get_view_2_config
+from config_app import get_mode_version, get_view_config, get_view_1_config, get_view_2_config
 from view import ViewApp
 
 
@@ -18,7 +18,8 @@ class View2(ViewApp, ft.UserControl):
         self.loop = loop
         self.start_chess_game = start_chess_game
         self.write_event_and_players_data_chess_game = write_event_and_players_data_chess_game
-        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
+        mode_version = get_mode_version()
+        self.develop_mode = get_view_config()[mode_version]["MAIN"]["DEVELOP_MODE"]
 
     def build(
             self
@@ -37,8 +38,9 @@ class View2(ViewApp, ft.UserControl):
 
     @staticmethod
     def put_text_prepare_chessboard():
-        main_config = get_view_config()["MAIN"]
-        config = get_view_2_config()["TEXT_PREPARE_CHESSBOARD"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_2_config()[mode_version]["TEXT_PREPARE_CHESSBOARD"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -73,14 +75,16 @@ class View2(ViewApp, ft.UserControl):
 
     @staticmethod
     def read_event_and_players_data_chess_game():
-        config = get_view_1_config()
+        mode_version = get_mode_version()
+        config = get_view_1_config()[mode_version]
         with open(config["PATH"], "r") as file:
             data = json.load(file)
         return data
 
     def put_button_start_game(self):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_2_config()["BUTTON_START_GAME"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_2_config()[mode_version]["BUTTON_START_GAME"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -107,8 +111,9 @@ class View2(ViewApp, ft.UserControl):
         )
 
     def put_button_back(self):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_config()["BUTTON_BACK"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_config()[mode_version]["BUTTON_BACK"]
         return ft.Container(
             ft.Column([
                 ft.Row(

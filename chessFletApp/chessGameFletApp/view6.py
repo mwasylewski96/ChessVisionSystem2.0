@@ -1,6 +1,6 @@
 import flet as ft
 import json
-from config_app import get_view_config, get_view_1_config,\
+from config_app import get_mode_version, get_view_config, get_view_1_config,\
     get_view_3_config, get_view_6_config
 from view import ViewApp
 
@@ -32,8 +32,9 @@ class View6(ViewApp, ft.UserControl):
 
     @staticmethod
     def put_text_congratulations():
-        main_config = get_view_config()["MAIN"]
-        config = get_view_6_config()["TEXT_CONGRATULATIONS"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_6_config()[mode_version]["TEXT_CONGRATULATIONS"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -67,8 +68,9 @@ class View6(ViewApp, ft.UserControl):
     def put_button_menu(
             self
     ):
-        main_config = get_view_config()["MAIN"]
-        config = get_view_6_config()["BUTTON_MENU"]
+        mode_version = get_mode_version()
+        main_config = get_view_config()[mode_version]["MAIN"]
+        config = get_view_6_config()[mode_version]["BUTTON_MENU"]
         return ft.Container(
             ft.Column([
                 ft.Row(
@@ -96,7 +98,8 @@ class View6(ViewApp, ft.UserControl):
 
     @staticmethod
     def write_init_clean_button_states_to_json():
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         data = {
             "white_state": False,
             "black_state": True,
@@ -106,7 +109,8 @@ class View6(ViewApp, ft.UserControl):
 
     @staticmethod
     def write_init_clean_entries_to_json():
-        config = get_view_1_config()
+        mode_version = get_mode_version()
+        config = get_view_1_config()[mode_version]
         data = {
             "white": "",
             "event": "",
@@ -117,7 +121,8 @@ class View6(ViewApp, ft.UserControl):
 
     @staticmethod
     def write_init_clean_timers_to_json():
-        config = get_view_3_config()
+        mode_version = get_mode_version()
+        config = get_view_3_config()[mode_version]
         data = {
             "white_time": config["BUTTON_WHITE"]["TIME"],
             "black_time": config["BUTTON_BLACK"]["TIME"]

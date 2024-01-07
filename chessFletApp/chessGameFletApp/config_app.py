@@ -38,19 +38,19 @@ def get_view_config():
         },
         "ANDROID": {
             "MAIN": {
-                "DEVELOP_MODE": True,
-                "WIDTH": 411,
-                "HEIGHT": 700,
+                "DEVELOP_MODE": False,
+                "WIDTH": 384,
+                "HEIGHT": 650,
                 "BG_COLOR": "transparent",
                 "IMG_SRC": "assets/background.png",
                 "PAGE_TITLE": "Chess Flet App"
             },
             "TEXT_CHESS_CLOCK": {
                 "VALUE": "CHESS CLOCK",
-                "SIZE": 50,
+                "SIZE": 45,
                 "COLOR": ft.colors.WHITE,
                 "WEIGHT": ft.FontWeight.W_500,
-                "HEIGHT": 100,
+                "HEIGHT": 60,
                 "TOP": 40
             },
             "BUTTON_BACK": {
@@ -58,7 +58,7 @@ def get_view_config():
                 "SIZE": 30,
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "COLOR": ft.colors.WHITE,
-                "TOP": 630,
+                "TOP": 570,
                 "HEIGHT": 50,
                 "LEFT2": 30
             }
@@ -126,7 +126,7 @@ def get_view_1_config():
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "COLOR": ft.colors.WHITE,
                 "RIGHT": 30,
-                "TOP": 630,
+                "TOP": 570,
                 "HEIGHT": 50,
             },
             "ENTRIES_WHITE_BLACK": {
@@ -136,7 +136,7 @@ def get_view_1_config():
                 "HINT_WHITE": "Insert player 1",
                 "HINT_BLACK": "Insert player 2",
                 "TOP": 300,
-                "HEIGHT": 50
+                "HEIGHT": 65
             },
             "ENTRY_EVENT": {
                 "COLOR": ft.colors.WHITE,
@@ -144,7 +144,7 @@ def get_view_1_config():
                 "HINT": "Insert event",
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "TOP": 420,
-                "HEIGHT": 50
+                "HEIGHT": 65
             },
             "TEXTS_WHITE_BLACK": {
                 "VALUE_WHITE": "WHITE",
@@ -154,7 +154,7 @@ def get_view_1_config():
                 "WEIGHT": ft.FontWeight.W_500,
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "TOP": 250,
-                "HEIGHT": 50
+                "HEIGHT": 40
             },
             "TEXT_EVENT": {
                 "VALUE": "EVENT",
@@ -163,7 +163,7 @@ def get_view_1_config():
                 "WEIGHT": ft.FontWeight.W_500,
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "TOP": 370,
-                "HEIGHT": 50
+                "HEIGHT": 40
             },
             "PATH": "event_and_players_data_chess_game.json"
         }
@@ -200,7 +200,7 @@ def get_view_2_config():
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
                 "COLOR": ft.colors.WHITE,
                 "TOP": 330,
-                "HEIGHT": 180,
+                "HEIGHT": 50,
                 "ROTATE": 3.14
             },
             "TEXT_PREPARE_CHESSBOARD": {
@@ -208,7 +208,7 @@ def get_view_2_config():
                 "SIZE": 25,
                 "COLOR": ft.colors.WHITE,
                 "WEIGHT": ft.FontWeight.W_500,
-                "HEIGHT": 100,
+                "HEIGHT": 30,
                 "TOP": 280
             }
         }
@@ -278,8 +278,8 @@ def get_view_3_config():
                     "MIN": 5,
                     "SEC": 0
                 },
-                "WIDTH": 380,
-                "SIZE": 130,
+                "WIDTH": 340,
+                "SIZE": 110,
                 "RADIUS": 10,
                 "BG_COLOR": {
                     "DISABLED": ft.colors.DEEP_PURPLE_100,
@@ -298,8 +298,8 @@ def get_view_3_config():
                     "MIN": 5,
                     "SEC": 0
                 },
-                "WIDTH": 380,
-                "SIZE": 130,
+                "WIDTH": 340,
+                "SIZE": 110,
                 "RADIUS": 10,
                 "BG_COLOR": {
                     "DISABLED": ft.colors.DEEP_PURPLE_100,
@@ -318,7 +318,7 @@ def get_view_3_config():
                 "SIZE": 85,
                 "RADIUS": 10,
                 "BG_COLOR": ft.colors.DEEP_PURPLE_200,
-                "TOP": 300,
+                "TOP": 275,
                 "HEIGHT": 100,
             },
             "PATH": {

@@ -33,7 +33,8 @@ def view_handler(
                     page=page,
                     loop=loop
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )
     elif view_to_return == view_2:
         return ft.View(
@@ -45,7 +46,8 @@ def view_handler(
                     start_chess_game=start_chess_game,
                     write_event_and_players_data_chess_game=write_event_and_players_data_chess_game
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )
     elif view_to_return == view_3:
         return ft.View(
@@ -57,7 +59,8 @@ def view_handler(
                     execute_procedure_of_move_white=execute_procedure_of_move_white,
                     execute_procedure_of_move_black=execute_procedure_of_move_black,
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )
     elif view_to_return == view_4:
         return ft.View(
@@ -67,7 +70,8 @@ def view_handler(
                     page=page,
                     loop=loop
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )
     elif view_to_return == view_5:
         return ft.View(
@@ -78,7 +82,8 @@ def view_handler(
                     loop=loop,
                     end_chess_game=end_chess_game
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )
     elif view_to_return == view_6:
         return ft.View(
@@ -88,5 +93,6 @@ def view_handler(
                     page=page,
                     loop=loop
                 )
-            ]
+            ],
+            vertical_alignment=ft.MainAxisAlignment.CENTER
         )

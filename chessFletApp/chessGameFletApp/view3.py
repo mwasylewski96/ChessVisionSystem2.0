@@ -267,7 +267,8 @@ class View3(ViewApp, ft.UserControl):
                 color={
                     ft.MaterialState.DISABLED: config["COLOR"]["DISABLED"],
                     ft.MaterialState.DEFAULT: config["COLOR"]["DEFAULT"]
-                }
+                },
+                padding=0
             ),
             on_click=lambda _: self.loop.create_task(self.on_button_black())
         )
@@ -312,7 +313,8 @@ class View3(ViewApp, ft.UserControl):
                 color={
                     ft.MaterialState.DISABLED: config["COLOR"]["DISABLED"],
                     ft.MaterialState.DEFAULT: config["COLOR"]["DEFAULT"]
-                }
+                },
+                padding=0
             ),
             on_click=lambda _: self.loop.create_task(self.on_button_white())
         )

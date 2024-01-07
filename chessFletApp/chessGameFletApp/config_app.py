@@ -1,5 +1,4 @@
 import flet as ft
-from chessTools.chessConfig import main_chess_vision_system_20_path
 
 
 # FOR ALL VIEWS
@@ -10,7 +9,8 @@ def get_view_config():
             "WIDTH": 411,
             "HEIGHT": 700,
             "BG_COLOR": "transparent",
-            "IMG_SRC": "assets/background.png"
+            "IMG_SRC": "assets/background.png",
+            "PAGE_TITLE": "Chess Flet App"
         },
         "TEXT_CHESS_CLOCK": {
             "VALUE": "CHESS CLOCK",

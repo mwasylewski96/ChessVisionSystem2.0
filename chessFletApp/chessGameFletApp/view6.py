@@ -1,8 +1,8 @@
 import flet as ft
 import json
-from chessFletApp.config_app import get_view_config, get_view_1_config,\
+from config_app import get_view_config, get_view_1_config,\
     get_view_3_config, get_view_6_config
-from chessFletApp.chessGameFletApp.view import ViewApp
+from view import ViewApp
 
 
 class View6(ViewApp, ft.UserControl):

@@ -1,10 +1,9 @@
 import asyncio
 import json
-
 import flet as ft
 import socketio
 from views import view_handler
-from chessFletApp.config_app import get_view_config, get_view_1_config, get_view_3_config
+from config_app import get_view_config, get_view_1_config, get_view_3_config
 
 
 class ChessFletApp:
@@ -17,7 +16,8 @@ class ChessFletApp:
         self.sio = socketio.AsyncClient()
         self.chess_game_namespace = "/chess_game"
         self.loop = asyncio.get_event_loop()
-        self.develop_mode = get_view_config()["MAIN"]["DEVELOP_MODE"]
+        self.config = get_view_config()["MAIN"]
+        self.develop_mode = self.config["DEVELOP_MODE"]
 
         @self.sio.on('connect', namespace=self.chess_game_namespace)
         async def on_chess_game_namespace_connect():
@@ -85,7 +85,7 @@ class ChessFletApp:
         print("Starting server...")
         if not self.develop_mode:
             await self.sio.connect(
-                "http://127.0.0.1:8080",
+                "http://192.168.0.106:8080",
                 namespaces=[self.chess_game_namespace]
             )
 
@@ -161,7 +161,11 @@ class ChessFletApp:
             )
         print(f"SEND {data_to_send}")
 
-    async def main(self, page: ft.Page):
+    async def main(
+            self,
+            page: ft.Page
+    ):
+        page.title = self.config["PAGE_TITLE"]
         page.window_width = 450
         page.window_height = 770
 
@@ -175,13 +179,13 @@ class ChessFletApp:
                     write_event_and_players_data_chess_game=self.write_event_and_players_data_chess_game,
                     execute_procedure_of_move_white=self.execute_procedure_of_move_white,
                     execute_procedure_of_move_black=self.execute_procedure_of_move_black,
-                    end_chess_game=self.end_chess_game,
+                    end_chess_game=self.end_chess_game
                 )
             )
         page.on_route_change = route_change
         await page.go_async("/view1")
 
 
-if __name__ == "__main__":
-    flt_app = ChessFletApp()
-    ft.app(target=flt_app.main)
+# if __name__ == "__main__":
+flt_app = ChessFletApp()
+ft.app(target=flt_app.main)

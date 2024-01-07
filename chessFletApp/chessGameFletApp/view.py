@@ -1,4 +1,4 @@
-from chessFletApp.config_app import get_view_config
+from config_app import get_view_config
 import flet as ft
 
 

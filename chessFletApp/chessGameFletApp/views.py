@@ -1,10 +1,10 @@
 import flet as ft
-from chessFletApp.chessGameFletApp.view1 import View1
-from chessFletApp.chessGameFletApp.view2 import View2
-from chessFletApp.chessGameFletApp.view3 import View3
-from chessFletApp.chessGameFletApp.view4 import View4
-from chessFletApp.chessGameFletApp.view5 import View5
-from chessFletApp.chessGameFletApp.view6 import View6
+from view1 import View1
+from view2 import View2
+from view3 import View3
+from view4 import View4
+from view5 import View5
+from view6 import View6
 
 
 def view_handler(

@@ -31,9 +31,6 @@ class ChessGameController:
         self.chess_color_detector = ChessColorDetector()
         self.chess_ods_data_r_w = ChessOdsDataReaderWriter()
 
-        # self.chess_camera = ChessCameraRecorder() init in process __camera_get_frame_process
-        # self.chess_corner_detector = ChessCornerDetector() TODO answer the question: will be used in final app?
-
         self.window_name = None
         self.black_screen = None
         self.screen_width = None
@@ -60,7 +57,6 @@ class ChessGameController:
         self.__camera_get_frame_process_event = multiprocessing.Event()
         self.__camera_display_stacked_images_process_event = multiprocessing.Event()
 
-        # self.chess_ods_data_r_w.reset_chess_table_to_starting_position()
         self.corners_from_json = load_chess_corners()
 
         self.__setup_camera_get_frame_process()
@@ -703,36 +699,13 @@ class ChessGameController:
             lock: multiprocessing.Lock(),
     ):
         self.setup_window_for_images()
-        time.sleep(20)
+        time.sleep(20)  # TODO use some multiprocessing event to wait until it wll be set
         while not event.is_set():
 
             with lock:
                 temp_dict = self.stacked_image
 
             if temp_dict["temp_image"] is not None:
-                # if temp_dict["white_and_black_detected_image"] is not None:
-                #     if temp_dict["detected_move"] is not None:
-                #         stacked_images_to_show = stack_images(
-                #             1,
-                #             [temp_dict["temp_image"],
-                #              temp_dict["white_and_black_detected_image"],
-                #              temp_dict["detected_move"]
-                #              ]
-                #         )
-                #     else:
-                #         stacked_images_to_show = stack_images(
-                #             1,
-                #             [temp_dict["temp_image"],
-                #              temp_dict["white_and_black_detected_image"]
-                #              ]
-                #         )
-                # else:
-                #     stacked_images_to_show = stack_images(
-                #         1,
-                #         [temp_dict["temp_image"],
-                #          temp_dict["detected_move"]
-                #          ]
-                #     )
                 if temp_dict["detected_move"] is not None:
                     stacked_images_to_show = stack_images(
                             1,
